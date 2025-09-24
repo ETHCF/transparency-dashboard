@@ -1,0 +1,23 @@
+name: transparency-dashboard
+displayName: Transparency Dashboard
+createdAt: The date this package was created (RFC3339 layout) (required)
+description: |
+  A Helm chart for deploying the Transparency Dashboard
+license: MIT
+homeURL: https://ethcf.org
+
+operator: false
+deprecated: false
+prerelease: false
+
+links:
+  - name: Source
+    url: https://github.com/ETHCF/transparency-dashboard/
+install: |
+  Installation is turn key, just need an initial admin address and an alchemy API key.
+
+maintainers:
+  - name: Ethereum Community Foundation
+    email: engineering@ethcf.org
+provider: 
+  name: Ethereum Community Foundation

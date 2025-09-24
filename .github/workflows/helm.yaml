@@ -42,6 +42,11 @@ jobs:
         to-file: 'helm/values.yaml'
         merge: |
           { "backend.image.tag": "backend-${{ github.ref_name }}", "dashboard.image.tag": "frontend-${{ github.ref_name }}" }
+    - name: Add details to pkg.yaml file
+      run: |
+        echo "version: ${{ github.ref_name }}" >> helm/artifacthub-pkg.yaml
+        echo "createdAt: $(date -u +"%Y-%m-%dT%H:%M:%SZ")" >> helm/artifacthub-pkg.yaml
+        cp README.md helm/README.md
     - name: Fetch dependencies for helm chart
       run: helm dependency update ./helm
     - name: Package Helm Chart
