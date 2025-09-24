@@ -10,6 +10,7 @@ import (
 	"github.com/ETHCF/transparency-dashboard/backend/pkg/config"
 	"github.com/ETHCF/transparency-dashboard/backend/pkg/db"
 	"github.com/ETHCF/transparency-dashboard/backend/pkg/eth"
+	"github.com/ETHCF/transparency-dashboard/backend/pkg/types"
 )
 
 func main() {
@@ -27,6 +28,16 @@ func main() {
 	dbConn, err := conf.ConnectPSQL(ctx)
 	if err != nil {
 		log.WithError(err).Fatal("failed to connect to PSQL")
+	}
+
+	adminDB, err := db.NewAdminDB(ctx, conf, dbConn)
+	if err != nil {
+		log.WithError(err).Fatal("failed to connect to admin PSQL")
+	}
+
+	err = adminDB.AddAdmin(ctx, types.Admin{Name: "Super Admin", Address: conf.InitialAdminAddress})
+	if err != nil {
+		log.WithError(err).Warn("failed to add initial admin")
 	}
 
 	metaDB, err := db.NewMetaDB(dbConn)

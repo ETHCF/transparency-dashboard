@@ -45,7 +45,7 @@ func (m middleware) Handle(c *gin.Context) {
 		return
 	}
 
-	c.Set(UserIDKey, token.User)
+	c.Set(UserIDKey, token["user"])
 	c.Next()
 }
 

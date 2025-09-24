@@ -102,6 +102,7 @@ func (rh *RouteHandler) ApplyRoutes(r *gin.Engine) {
 	api.PUT("/transfer-parties/:address", rh.authMiddleware.Handle, rh.UpdateTransferPartyName)
 	api.POST("/transfer-parties", rh.authMiddleware.Handle, rh.UpsertTransferParty)
 	api.PUT("/settings/organization-name", rh.authMiddleware.Handle, rh.UpdateOrganizationName)
+	api.POST("/settings/name", rh.authMiddleware.Handle, rh.UpdateOrganizationName)
 	api.POST("/grants/:id/disbursements", rh.authMiddleware.Handle, rh.CreateDisbursement)
 	api.PUT("/grants/:id/disbursements/:disbursementId", rh.authMiddleware.Handle, rh.UpdateDisbursement)
 	api.POST("/grants/:id/funds-usage", rh.authMiddleware.Handle, rh.CreateGrantFundsUsage)

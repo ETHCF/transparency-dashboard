@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/sirupsen/logrus"
 
 	"github.com/ETHCF/transparency-dashboard/backend/pkg/config"
@@ -15,7 +15,7 @@ import (
 
 type JWTManager interface {
 	IssueToken(ctx context.Context, authn Authentication, claims map[string]any) (string, error)
-	ValidateToken(c *gin.Context) (Claims, error)
+	ValidateToken(c *gin.Context) (jwt.MapClaims, error)
 }
 
 type jwtManager struct {
@@ -36,23 +36,22 @@ func NewJWTManager(conf *config.Config, privateKey *ecdsa.PrivateKey) (JWTManage
 
 func (m *jwtManager) IssueToken(ctx context.Context, authn Authentication, meta map[string]any) (string, error) {
 	m.log.WithField("user", authn.UserAddress).Debug("Issuing token")
-
-	token := jwt.NewWithClaims(jwt.SigningMethodES384, &Claims{
-		User: authn.UserAddress,
-		Meta: meta,
+	token := jwt.NewWithClaims(jwt.SigningMethodES384, &jwt.MapClaims{
+		"user": authn.UserAddress,
+		"meta": meta,
 	})
 	return token.SignedString(m.privateKey)
 
 }
 
-func (m *jwtManager) ValidateToken(c *gin.Context) (Claims, error) {
+func (m *jwtManager) ValidateToken(c *gin.Context) (jwt.MapClaims, error) {
 	authVal := c.Request.Header.Get("Authorization")
 	if !strings.Contains(authVal, "Bearer ") {
-		return Claims{}, fmt.Errorf("invalid token")
+		return jwt.MapClaims{}, fmt.Errorf("invalid token")
 	}
 
 	tokenStr := strings.Replace(authVal, "Bearer ", "", 1)
-	var claims Claims
+	var claims jwt.MapClaims
 	token, err := jwt.ParseWithClaims(tokenStr, &claims, func(token *jwt.Token) (interface{}, error) {
 		_, ok := token.Method.(*jwt.SigningMethodECDSA)
 		if !ok {
@@ -62,11 +61,11 @@ func (m *jwtManager) ValidateToken(c *gin.Context) (Claims, error) {
 		return m.publicKey, nil
 	})
 	if err != nil {
-		return Claims{}, err
+		return jwt.MapClaims{}, err
 	}
 
 	if !token.Valid {
-		return Claims{}, fmt.Errorf("invalid token")
+		return jwt.MapClaims{}, fmt.Errorf("invalid token")
 	}
 	return claims, nil
 }
