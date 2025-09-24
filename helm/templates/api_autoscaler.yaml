@@ -1,0 +1,34 @@
+{{- $chart := include "chart" . -}}
+{{- $fullname := include "fullname" . -}}
+{{- $api := .Values.backend.api -}}
+{{- $name := printf "%s-api" $fullname -}}
+
+{{- if $api.autoscaler.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ $name }}
+  namespace: {{ $.Values.namespace }}
+  labels:
+    app.kubernetes.io/name: {{ $name }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+    app.kubernetes.io/managed-by: {{ $.Release.Service }}
+    helm.sh/chart: {{ $chart }}
+    {{- if $api.additionalLabels}}
+    {{- toYaml $api.additionalLabels | nindent 4 }}
+    {{- end }}
+spec:
+  minReplicas: {{ default $api.autoscaler.minReplicas $api.autoscaler.minReplicas }}
+  maxReplicas: {{ default 3 $api.autoscaler.maxReplicas }}
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ $name }}
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization:  {{ default 70 $api.autoscaler.targetCPUUtil }}
+{{- end }}

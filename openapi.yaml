@@ -1,0 +1,2521 @@
+openapi: 3.0.3
+info:
+  title: Transparency Dashboard API
+  description: API for tracking grants and spending on-chain for organizational transparency
+  version: 1.0.0
+  contact:
+    name: Ethereum Community Foundation
+servers:
+  - url: /api/v1
+    description: API server
+
+paths:
+  /api/v1/treasury:
+    get:
+      summary: Get treasury assets
+      description: Returns the treasury assets, wallets, and total values for the organization
+      operationId: getTreasury
+      tags:
+        - Treasury
+      responses:
+        '200':
+          description: Successfully retrieved treasury information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TreasuryResponse'
+              examples:
+                success:
+                  summary: Example treasury response
+                  value:
+                    organizationName: "Ethereum Community Foundation"
+                    assets:
+                      - name: "ETH"
+                        amount: "1250.5"
+                        usdWorth: 3126250.0
+                        ethWorth: "1250.5"
+                      - name: "USDC"
+                        amount: "500000.0"
+                        usdWorth: 500000.0
+                        ethWorth: "200.0"
+                    wallets:
+                      - address: "0x1234567890abcdef1234567890abcdef12345678"
+                        etherscanLink: "https://etherscan.io/address/0x1234567890abcdef1234567890abcdef12345678"
+                    totalValueUsd: 3626250.0
+                    totalValueEth: "1450.5"
+                    lastUpdated: "2023-12-15T10:30:00Z"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/transfers:
+    get:
+      summary: Get transfers
+      description: Returns transfers to and from the organization's wallets
+      operationId: getTransfers
+      tags:
+        - Transfers
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of transfers to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 100
+        - name: offset
+          in: query
+          description: Number of transfers to skip for pagination
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Successfully retrieved transfers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transfer'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      summary: Create a new transfer
+      description: Create a new transfer record representing a blockchain transaction
+      operationId: createTransfer
+      tags:
+        - Transfers
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTransferRequest'
+            examples:
+              outgoing_transfer:
+                summary: Outgoing transfer example
+                value:
+                  txHash: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+                  blockNumber: 18500000
+                  blockTimestamp: 1703097600
+                  fromAddress: "0x742d35Cc6634C0532925a3b8D581C8D1f8B9C942"
+                  toAddress: "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
+                  asset: "0xA0b86a33E6441d0b59f4bd0bd8d3E58bB6DFdAd7"
+                  amount: "1000.50"
+                  direction: "outgoing"
+              incoming_transfer:
+                summary: Incoming transfer example
+                value:
+                  txHash: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+                  blockNumber: 18500001
+                  blockTimestamp: 1703097900
+                  fromAddress: "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
+                  toAddress: "0x742d35Cc6634C0532925a3b8D581C8D1f8B9C942"
+                  asset: "0xA0b86a33E6441d0b59f4bd0bd8d3E58bB6DFdAd7"
+                  amount: "500.25"
+                  direction: "incoming"
+      responses:
+        '201':
+          description: Transfer created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transfer'
+        '400':
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalid_from_address:
+                  summary: Invalid from Ethereum address
+                  value:
+                    error: "Invalid from Ethereum address"
+                    code: "INVALID_ADDRESS"
+                invalid_to_address:
+                  summary: Invalid to Ethereum address
+                  value:
+                    error: "Invalid to Ethereum address"
+                    code: "INVALID_ADDRESS"
+                invalid_json:
+                  summary: Invalid JSON format
+                  value:
+                    error: "invalid character '}' looking for beginning of object key string"
+                    code: "INVALID_JSON"
+        '401':
+          description: Unauthorized - Authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missing_token:
+                  summary: Missing authorization token
+                  value:
+                    error: "Authorization token required"
+                    code: "UNAUTHORIZED"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                database_error:
+                  summary: Database error
+                  value:
+                    error: "Failed to create transfer"
+                    code: "DATABASE_ERROR"
+
+  /api/v1/transfer-parties:
+    get:
+      summary: Get transfer parties
+      description: Returns a list of all transfer parties (payers and payees)
+      operationId: getTransferParties
+      tags:
+        - Transfers
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of transfer parties to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 100
+        - name: offset
+          in: query
+          description: Number of transfer parties to skip for pagination
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Successfully retrieved transfer parties
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TransferParty'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/transfer-parties/{address}:
+    put:
+      summary: Update transfer party name
+      description: Updates the name associated with a transfer party address
+      operationId: updateTransferPartyName
+      security:
+        - bearerAuth: []
+      tags:
+        - Transfers
+      parameters:
+        - name: address
+          in: path
+          required: true
+          description: The Ethereum address of the transfer party
+          schema:
+            type: string
+            example: "0x9876543210fedcba9876543210fedcba98765432"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Updated name for the transfer party
+                  example: "Updated Organization Name"
+              required:
+                - name
+            examples:
+              update:
+                summary: Update party name
+                value:
+                  name: "Updated Organization Name"
+      responses:
+        '200':
+          description: Successfully updated transfer party name
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransferParty'
+              examples:
+                success:
+                  summary: Updated transfer party
+                  value:
+                    name: "Updated Organization Name"
+                    address: "0x9876543210fedcba9876543210fedcba98765432"
+        '400':
+          description: Bad request - invalid address or request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Transfer party not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/expenses:
+    get:
+      summary: Get expenses
+      description: Returns a list of organizational expenses
+      operationId: getExpenses
+      tags:
+        - Expenses
+      parameters:
+        - name: category
+          in: query
+          description: Filter expenses by category
+          required: false
+          schema:
+            type: string
+            example: "travel"
+        - name: limit
+          in: query
+          description: Maximum number of expenses to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 100
+        - name: offset
+          in: query
+          description: Number of expenses to skip for pagination
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Successfully retrieved expenses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Expense'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create expense
+      description: Creates a new organizational expense
+      operationId: createExpense
+      tags:
+        - Expenses
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                item:
+                  type: string
+                  description: Description of the expense item
+                  example: "Flight to conference"
+                quantity:
+                  type: integer
+                  description: Quantity of items
+                  example: 1
+                price:
+                  type: string
+                  description: Price per item
+                  example: "450.00"
+                purpose:
+                  type: string
+                  description: Purpose of the expense
+                  example: "Attending Ethereum conference for research"
+                category:
+                  type: string
+                  description: Expense category
+                  example: "travel"
+                date:
+                  type: string
+                  format: date
+                  description: Date of the expense
+                  example: "2023-12-15"
+                txHash:
+                  type: string
+                  description: Optional transaction hash if paid on-chain
+                  example: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+                  nullable: true
+              required:
+                - item
+                - quantity
+                - price
+                - purpose
+                - category
+                - date
+      responses:
+        '201':
+          description: Expense created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expense'
+        '400':
+          description: Bad request - invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/expenses/{id}:
+    put:
+      summary: Update expense
+      description: Updates an existing organizational expense
+      operationId: updateExpense
+      tags:
+        - Expenses
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The expense ID
+          schema:
+            type: string
+            example: "exp_12345"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                item:
+                  type: string
+                  description: Description of the expense item
+                  example: "Flight to conference"
+                quantity:
+                  type: integer
+                  description: Quantity of items
+                  example: 1
+                price:
+                  type: number
+                  description: Price per item
+                  example: 450.00
+                purpose:
+                  type: string
+                  description: Purpose of the expense
+                  example: "Attending Ethereum conference for research"
+                category:
+                  type: string
+                  description: Expense category
+                  example: "travel"
+                date:
+                  type: string
+                  format: date
+                  description: Date of the expense
+                  example: "2023-12-15"
+                txHash:
+                  type: string
+                  description: Optional transaction hash if paid on-chain
+                  example: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+                  nullable: true
+              required:
+                - item
+                - quantity
+                - price
+                - purpose
+                - category
+                - date
+      responses:
+        '200':
+          description: Expense updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expense'
+        '400':
+          description: Bad request - invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Expense not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete expense
+      description: Deletes an organizational expense
+      operationId: deleteExpense
+      tags:
+        - Expenses
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The expense ID
+          schema:
+            type: string
+            example: "exp_12345"
+      responses:
+        '204':
+          description: Expense deleted successfully
+        '401':
+          description: Unauthorized - invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Expense not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/expenses/{id}/receipts:
+    post:
+      summary: Upload receipt
+      description: Uploads a receipt document for an expense
+      operationId: uploadReceipt
+      tags:
+        - Expenses
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The expense ID
+          schema:
+            type: string
+            example: "exp_12345"
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The receipt document file
+                name:
+                  type: string
+                  description: Display name for the receipt
+                  example: "Flight Receipt - Conference 2023"
+              required:
+                - file
+                - name
+      responses:
+        '201':
+          description: Receipt uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Receipt'
+        '400':
+          description: Bad request - invalid file or input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Expense not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/expenses/{expenseId}/receipts/{receiptId}:
+    delete:
+      summary: Delete receipt
+      description: Deletes a receipt document from an expense
+      operationId: deleteReceipt
+      tags:
+        - Expenses
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: expenseId
+          in: path
+          required: true
+          description: The expense ID
+          schema:
+            type: string
+            example: "exp_12345"
+        - name: receiptId
+          in: path
+          required: true
+          description: The receipt UUID
+          schema:
+            type: string
+            format: uuid
+            example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        '204':
+          description: Receipt deleted successfully
+        '401':
+          description: Unauthorized - invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Expense or receipt not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/auth/challenge/{address}:
+    get:
+      tags:
+        - Auth
+      summary: Get authentication challenge
+      description: Get an authentication challenge message for SIWE (Sign-In with Ethereum)
+      parameters:
+        - name: address
+          in: path
+          description: The Ethereum address of the user
+          required: true
+          schema:
+            type: string
+            pattern: '^(0x)?[0-9a-f]{40}$'
+            example: "0x742d35cc6670c02bb4bbecbb5fb95e8b7d7b36bf"
+      responses:
+        '200':
+          description: Authentication challenge message
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: The SIWE message to sign
+                    example: "localhost:3000 wants you to sign in with your Ethereum account..."
+                required:
+                  - message
+        '400':
+          description: Invalid address format
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: The error message
+  /api/v1/auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Submit authentication challenge
+      description: Verify a signed SIWE message and return a JWT token if successful. This token can be used as is, and will be valid for 24 hours.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                siweMessage:
+                  type: string
+                  description: The SIWE message that was signed
+                  example: "localhost:3000 wants you to sign in with your Ethereum account..."
+                signature:
+                  type: string
+                  description: The signature of the SIWE message
+                  example: "0x..."
+              required:
+                - siweMessage
+                - signature
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: The JWT token for authenticated requests
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                required:
+                  - token
+        '400':
+          description: Invalid request or signature verification failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: The error message
+  /api/v1/auth/check:
+    get:
+      tags:
+        - Auth
+      summary: Check authentication status
+      description: Verify the provided JWT token and return the associated Ethereum address if valid
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Token is valid
+        '403':
+          description: Unauthorized - invalid or missing token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: The error message
+                    example: "Invalid or expired token"
+  /api/v1/admins:
+    get:
+      summary: List admins
+      description: Returns a list of all administrators
+      operationId: getAdmins
+      tags:
+        - Admins
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Successfully retrieved admins
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Admin'
+        '401':
+          description: Unauthorized - invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Add admin
+      description: Adds a new administrator
+      operationId: addAdmin
+      tags:
+        - Admins
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Display name of the admin
+                  example: "John Doe"
+                address:
+                  type: string
+                  pattern: '^(0x)?[0-9a-f]{40}$'
+                  description: Ethereum address of the admin
+                  example: "0x742d35cc6670c02bb4bbecbb5fb95e8b7d7b36bf"
+              required:
+                - name
+                - address
+      responses:
+        '201':
+          description: Admin added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Admin'
+        '400':
+          description: Bad request - invalid input or admin already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/admins/{address}:
+    delete:
+      summary: Remove admin
+      description: Removes an administrator by their Ethereum address
+      operationId: removeAdmin
+      tags:
+        - Admins
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: address
+          in: path
+          required: true
+          description: The Ethereum address of the admin to remove
+          schema:
+            type: string
+            pattern: '^(0x)?[0-9a-f]{40}$'
+            example: "0x742d35cc6670c02bb4bbecbb5fb95e8b7d7b36bf"
+      responses:
+        '204':
+          description: Admin removed successfully
+        '401':
+          description: Unauthorized - invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Admin not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/settings/name:
+    post:
+      summary: Update organization name
+      description: Updates the organization name displayed in the dashboard
+      operationId: updateOrganizationName
+      tags:
+        - Settings
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: New organization name
+                  example: "Ethereum Community Foundation"
+                  minLength: 1
+                  maxLength: 255
+              required:
+                - name
+            examples:
+              update:
+                summary: Update organization name
+                value:
+                  name: "Ethereum Community Foundation"
+      responses:
+        '200':
+          description: Organization name updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: Updated organization name
+                    example: "Ethereum Community Foundation"
+                required:
+                  - name
+              examples:
+                success:
+                  summary: Updated organization name
+                  value:
+                    name: "Ethereum Community Foundation"
+        '400':
+          description: Bad request - invalid name
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/grants:
+    get:
+      summary: Get grants
+      description: Returns a list of grants with optional filtering
+      operationId: getGrants
+      tags:
+        - Grants
+      parameters:
+        - name: status
+          in: query
+          description: Filter by grant status (active/previous)
+          required: false
+          schema:
+            type: string
+            enum: [active, previous]
+        - name: search
+          in: query
+          description: Search grants by name
+          required: false
+          schema:
+            type: string
+            example: "ethereum"
+        - name: limit
+          in: query
+          description: Maximum number of grants to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 100
+        - name: offset
+          in: query
+          description: Number of grants to skip for pagination
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Successfully retrieved grants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Grant'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create grant
+      description: Creates a new grant
+      operationId: createGrant
+      tags:
+        - Grants
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Name of the grant
+                  example: "Ethereum Research Grant"
+                recipientName:
+                  type: string
+                  description: Name of the recipient
+                  example: "Research Foundation"
+                description:
+                  type: string
+                  description: Description of the grant
+                  example: "Research into Ethereum scalability solutions"
+                teamUrl:
+                  type: string
+                  format: uri
+                  description: URL to the team's website
+                  example: "https://example.com/team"
+                  nullable: true
+                projectUrl:
+                  type: string
+                  format: uri
+                  description: URL to the project
+                  example: "https://github.com/example/project"
+                  nullable: true
+                recipientAddress:
+                  type: string
+                  pattern: '^(0x)?[0-9a-f]{40}$'
+                  description: Ethereum address of the recipient
+                  example: "0x742d35cc6670c02bb4bbecbb5fb95e8b7d7b36bf"
+                totalGrantAmount:
+                  type: string
+                  description: Total grant amount (as string to preserve precision) in ETH
+                  example: "100000.0"
+                initialGrantAmount:
+                  type: string
+                  description: Initial grant amount (as string to preserve precision) in ETH
+                  example: "25000.0"
+                startDate:
+                  type: string
+                  format: date
+                  description: Start date of the grant
+                  example: "2023-12-01"
+                expectedCompletionDate:
+                  type: string
+                  format: date
+                  description: Expected completion date
+                  example: "2024-06-01"
+              required:
+                - name
+                - recipientName
+                - description
+                - recipientAddress
+                - totalGrantAmount
+                - initialGrantAmount
+                - startDate
+                - expectedCompletionDate
+      responses:
+        '201':
+          description: Grant created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Grant'
+        '400':
+          description: Bad request - invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/grants/{id}:
+    put:
+      summary: Update grant
+      description: Updates grant details
+      operationId: updateGrant
+      tags:
+        - Grants
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The grant ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Name of the grant
+                  example: "Ethereum Research Grant"
+                recipientName:
+                  type: string
+                  description: Name of the recipient
+                  example: "Research Foundation"
+                description:
+                  type: string
+                  description: Description of the grant
+                  example: "Research into Ethereum scalability solutions"
+                teamUrl:
+                  type: string
+                  format: uri
+                  description: URL to the team's website
+                  example: "https://example.com/team"
+                  nullable: true
+                projectUrl:
+                  type: string
+                  format: uri
+                  description: URL to the project
+                  example: "https://github.com/example/project"
+                  nullable: true
+                status:
+                  type: string
+                  description: Current status of the grant
+                  example: "Milestone 2 completed"
+                recipientAddress:
+                  type: string
+                  pattern: '^(0x)?[0-9a-f]{40}$'
+                  description: Ethereum address of the recipient
+                  example: "0x742d35cc6670c02bb4bbecbb5fb95e8b7d7b36bf"
+                totalGrantAmount:
+                  type: string
+                  description: Total grant amount (as string to preserve precision)
+                  example: "100000.0"
+                initialGrantAmount:
+                  type: string
+                  description: Initial grant amount (as string to preserve precision)
+                  example: "25000.0"
+                startDate:
+                  type: string
+                  format: date
+                  description: Start date of the grant
+                  example: "2023-12-01"
+                expectedCompletionDate:
+                  type: string
+                  format: date
+                  description: Expected completion date
+                  example: "2024-06-01"
+              required:
+                - name
+                - recipientName
+                - description
+                - recipientAddress
+                - totalGrantAmount
+                - initialGrantAmount
+                - startDate
+                - expectedCompletionDate
+      responses:
+        '200':
+          description: Grant updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Grant'
+        '400':
+          description: Bad request - invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Grant not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/grants/{id}/milestones:
+    put:
+      summary: Update grant milestones
+      description: Updates the milestones for a grant, including completion and sign-off status
+      operationId: updateGrantMilestones
+      tags:
+        - Grants
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The grant ID
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                milestones:
+                  type: array
+                  description: List of grant milestones
+                  items:
+                    $ref: '#/components/schemas/Milestone'
+              required:
+                - milestones
+      responses:
+        '200':
+          description: Grant milestones updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Grant'
+        '400':
+          description: Bad request - invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Grant not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/grants/{grantId}/disbursements:
+    get:
+      summary: Get grant disbursements
+      description: Returns the disbursements for a specific grant
+      operationId: getGrantDisbursements
+      tags:
+        - Grants
+      parameters:
+        - name: grantId
+          in: path
+          required: true
+          description: The grant ID
+          schema:
+            type: string
+            format: uuid
+            example: "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+      responses:
+        '200':
+          description: Successfully retrieved grant disbursements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Disbursement'
+        '400':
+          description: Bad request - invalid grant ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Grant not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      summary: Create disbursement
+      description: Creates a new disbursement for a grant
+      operationId: createDisbursement
+      tags:
+        - Grants
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: grantId
+          in: path
+          required: true
+          description: The grant ID
+          schema:
+            type: string
+            format: uuid
+            example: "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDisbursementRequest'
+      responses:
+        '201':
+          description: Disbursement created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Disbursement created successfully"
+        '400':
+          description: Bad request - invalid input or grant ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Grant not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/grants/{grantId}/disbursements/{disbursementId}:
+    put:
+      summary: Update disbursement
+      description: Updates an existing disbursement for a grant
+      operationId: updateDisbursement
+      tags:
+        - Grants
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: grantId
+          in: path
+          required: true
+          description: The grant ID
+          schema:
+            type: string
+            format: uuid
+            example: "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+        - name: disbursementId
+          in: path
+          required: true
+          description: The disbursement ID
+          schema:
+            type: string
+            format: uuid
+            example: "b12f45e3-8e6d-4b4a-9c1d-7f8e9a0b1c2d"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDisbursementRequest'
+      responses:
+        '200':
+          description: Disbursement updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Disbursement updated successfully"
+        '400':
+          description: Bad request - invalid input or ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Grant or disbursement not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/grants/{id}/funds-usage:
+    post:
+      summary: Create grant funds usage
+      description: Creates a new funds usage entry for a grant
+      operationId: createGrantFundsUsage
+      tags:
+        - Grants
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The grant ID
+          schema:
+            type: string
+            format: uuid
+            example: "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFundsUsageRequest'
+            examples:
+              hardware_purchase:
+                summary: Hardware purchase example
+                value:
+                  item: "Development Laptop"
+                  quantity: 1
+                  price: "1200.00"
+                  purpose: "Development work for milestone 1"
+                  category: "Hardware"
+                  date: "2023-12-15"
+                  txHash: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+              software_subscription:
+                summary: Software subscription example
+                value:
+                  item: "IDE License"
+                  quantity: 2
+                  price: "299.99"
+                  purpose: "Development tools for team"
+                  category: "Software"
+                  date: "2023-12-10"
+      responses:
+        '201':
+          description: Funds usage created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Funds usage created successfully"
+        '400':
+          description: Bad request - invalid input or grant ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalid_grant_id:
+                  summary: Invalid grant ID format
+                  value:
+                    error: "Invalid grant ID format"
+                    code: "INVALID_ID"
+                invalid_tx_hash:
+                  summary: Invalid transaction hash
+                  value:
+                    error: "Invalid transaction hash"
+                    code: "INVALID_TX_HASH"
+                invalid_request:
+                  summary: Invalid request body
+                  value:
+                    error: "Key: 'CreateFundsUsage.Item' Error:Field validation for 'Item' failed on the 'required' tag"
+                    code: "VALIDATION_ERROR"
+        '401':
+          description: Unauthorized - invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Grant not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/grants/{id}/funds-usage/{usageId}:
+    put:
+      summary: Update grant funds usage
+      description: Updates an existing funds usage entry for a grant
+      operationId: updateGrantFundsUsage
+      tags:
+        - Grants
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The grant ID
+          schema:
+            type: string
+            format: uuid
+            example: "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+        - name: usageId
+          in: path
+          required: true
+          description: The funds usage ID
+          schema:
+            type: string
+            format: uuid
+            example: "b12f45e3-8e6d-4b4a-9c1d-7f8e9a0b1c2d"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateFundsUsageRequest'
+            examples:
+              update_hardware:
+                summary: Update hardware purchase
+                value:
+                  item: "Updated Development Laptop"
+                  quantity: 1
+                  price: "1500.00"
+                  purpose: "Updated development work for milestone 2"
+                  category: "Hardware"
+                  date: "2023-12-20"
+                  txHash: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+      responses:
+        '200':
+          description: Funds usage updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Funds usage updated successfully"
+        '400':
+          description: Bad request - invalid input or ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalid_grant_id:
+                  summary: Invalid grant ID format
+                  value:
+                    error: "Invalid grant ID format"
+                    code: "INVALID_ID"
+                invalid_usage_id:
+                  summary: Invalid funds usage ID format
+                  value:
+                    error: "Invalid funds usage ID format"
+                    code: "INVALID_ID"
+                invalid_tx_hash:
+                  summary: Invalid transaction hash
+                  value:
+                    error: "Invalid transaction hash"
+                    code: "INVALID_TX_HASH"
+        '401':
+          description: Unauthorized - invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Grant or funds usage entry not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                grant_not_found:
+                  summary: Grant not found
+                  value:
+                    error: "Grant not found"
+                    code: "NOT_FOUND"
+                usage_not_found:
+                  summary: Funds usage entry not found
+                  value:
+                    error: "Funds usage entry not found"
+                    code: "NOT_FOUND"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/admin-actions:
+    get:
+      summary: Get admin actions
+      description: Returns a list of actions taken by administrators (audit log)
+      operationId: getAdminActions
+      tags:
+        - Admins
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: adminAddress
+          in: query
+          description: Filter actions by admin address
+          required: false
+          schema:
+            type: string
+            pattern: '^(0x)?[0-9a-f]{40}$'
+            example: "0x742d35cc6670c02bb4bbecbb5fb95e8b7d7b36bf"
+        - name: action
+          in: query
+          description: Filter by action type
+          required: false
+          schema:
+            type: string
+            enum: [create_expense, update_expense, delete_expense, upload_receipt, delete_receipt, create_grant, update_grant, update_milestones, add_admin, remove_admin, update_transfer_party]
+        - name: limit
+          in: query
+          description: Maximum number of actions to return
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 100
+        - name: offset
+          in: query
+          description: Number of actions to skip for pagination
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Successfully retrieved admin actions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AdminAction'
+        '401':
+          description: Unauthorized - invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    TreasuryResponse:
+      type: object
+      properties:
+        organizationName:
+          type: string
+          description: Name of the organization
+          example: "Ethereum Community Foundation"
+        assets:
+          type: array
+          description: List of treasury assets
+          items:
+            $ref: '#/components/schemas/Asset'
+        walelts:
+          type: array
+          description: List of organization wallets
+          items:
+            $ref: '#/components/schemas/Wallet'
+        totalValueUsd:
+          type: number
+          description: Total USD value of all treasury assets
+          example: 3626250.0
+        totalValueEth:
+          type: string
+          description: Total ETH equivalent value (as string to preserve precision)
+          example: "1450.5"
+        lastUpdated:
+          type: string
+          format: date-time
+          description: Timestamp when the treasury data was last updated
+          example: "2023-12-15T10:30:00Z"
+      required:
+        - organizationName
+        - assets
+        - wallets
+        - totalValueUsd
+        - totalValueEth
+        - lastUpdated
+
+    Asset:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the asset
+          example: "ETH"
+        amount:
+          type: string
+          description: Amount of the asset (as string to preserve precision)
+          example: "1250.5"
+        usdWorth:
+          type: number
+          description: USD value of the asset
+          example: 3126250.0
+        ethWorth:
+          type: string
+          description: ETH equivalent value (as string to preserve precision)
+          example: "1250.5"
+      required:
+        - name
+        - amount
+        - usdWorth
+        - ethWorth
+
+    Wallet:
+      type: object
+      properties:
+        address:
+          type: string
+          description: Ethereum wallet address
+          example: "0x1234567890abcdef1234567890abcdef12345678"
+        etherscanLink:
+          type: string
+          format: uri
+          description: Link to view the wallet on Etherscan
+          example: "https://etherscan.io/address/0x1234567890abcdef1234567890abcdef12345678"
+      required:
+        - address
+        - etherscanLink
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: "Failed to fetch treasury data"
+        code:
+          type: string
+          description: Error code
+          example: "TREASURY_FETCH_ERROR"
+      required:
+        - error
+        - code
+
+    Transfer:
+      type: object
+      properties:
+        chain:
+          type: string
+          description: Blockchain chain name
+          example: "ethereum"
+        txHash:
+          type: string
+          description: Transaction hash
+          example: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+        etherscanLink:
+          type: string
+          format: uri
+          description: Link to view the transaction on Etherscan
+          example: "https://etherscan.io/tx/0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+        direction:
+          type: string
+          enum: [incoming, outgoing]
+          description: Transfer direction relative to organization
+          example: "incoming"
+        logIndex:
+          type: integer
+          description: Log index within the transaction
+          example: 0
+        payerName:
+          type: string
+          description: Name of the payer
+          example: "Alice"
+        payeeName:
+          type: string
+          description: Name of the payee
+          example: "Bob"
+        timestamp:
+          type: string
+          format: date-time
+          description: Transaction timestamp
+          example: "2023-12-15T10:30:00Z"
+        blockNumber:
+          type: integer
+          description: Block number
+          example: 18800000
+        asset:
+          type: string
+          description: Asset transferred
+          example: "0x1234567890abcdef1234567890abcdef12345678"
+        assetName:
+          type: string
+          description: Name of the asset
+          example: "USDC"
+        assetSymbol:
+          type: string
+          description: Symbol of the asset
+          example: "USDC"
+        payerAddress:
+          type: string
+          description: Ethereum address of the payer
+          example: "0xabcdef1234567890abcdef1234567890abcdef12"
+        payeeAddress:
+          type: string
+          description: Ethereum address of the payee
+          example: "0x1234567890abcdef1234567890abcdef12345678"
+        amount:
+          type: string
+          description: Transfer amount (as string to preserve precision)
+          example: "100.5"
+      required:
+        - chain
+        - txHash
+        - etherscanLink
+        - direction
+        - payer
+        - payee
+        - timestamp
+        - blockNumber
+        - asset
+        - amount
+
+    CreateTransferRequest:
+      type: object
+      properties:
+        txHash:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{64}$"
+          description: Transaction hash on the blockchain
+          example: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+        blockNumber:
+          type: integer
+          format: int64
+          description: Block number where the transaction was mined
+          example: 18500000
+        blockTimestamp:
+          type: integer
+          format: int64
+          description: Unix timestamp of the block
+          example: 1703097600
+        payerAddress:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{40}$"
+          description: Ethereum address of the sender
+          example: "0x742d35Cc6634C0532925a3b8D581C8D1f8B9C942"
+        payeeAddress:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{40}$"
+          description: Ethereum address of the recipient
+          example: "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045"
+        asset:
+          type: string
+          pattern: "^0x[a-fA-F0-9]{40}$"
+          description: Contract address of the asset/token
+          example: "0xA0b86a33E6441d0b59f4bd0bd8d3E58bB6DFdAd7"
+        amount:
+          type: string
+          description: Transfer amount as a high-precision decimal string
+          example: "1000.50"
+        direction:
+          type: string
+          enum: [incoming, outgoing]
+          description: Direction of the transfer relative to the treasury
+          example: "outgoing"
+        logIndex:
+          type: integer
+          description: Log index of the transfer event within the transaction
+          example: 0
+      required:
+        - txHash
+        - blockNumber
+        - blockTimestamp
+        - fromAddress
+        - toAddress
+        - asset
+        - amount
+        - direction
+        - logIndex
+
+    TransferParty:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the party
+          example: "Ethereum Foundation"
+        address:
+          type: string
+          description: Ethereum address of the party
+          example: "0x9876543210fedcba9876543210fedcba98765432"
+      required:
+        - name
+        - address
+
+    Expense:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique expense identifier
+          example: "exp_12345"
+        item:
+          type: string
+          description: Description of the expense item
+          example: "Flight to conference"
+        quantity:
+          type: integer
+          description: Quantity of items
+          example: 1
+        price:
+          type: number
+          description: Price per item
+          example: 450.00
+        purpose:
+          type: string
+          description: Purpose of the expense
+          example: "Attending Ethereum conference for research"
+        category:
+          type: string
+          description: Expense category
+          example: "travel"
+        receipts:
+          type: array
+          description: List of receipt documents
+          items:
+            $ref: '#/components/schemas/Receipt'
+        date:
+          type: string
+          format: date
+          description: Date of the expense
+          example: "2023-12-15"
+        txHash:
+          type: string
+          description: Optional transaction hash if paid on-chain
+          example: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+          nullable: true
+      required:
+        - id
+        - item
+        - quantity
+        - price
+        - purpose
+        - category
+        - receipts
+        - date
+
+    Receipt:
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+          description: Unique identifier for the receipt document
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        name:
+          type: string
+          description: Display name of the receipt document
+          example: "Flight Receipt - Conference 2023"
+        downloadUrl:
+          type: string
+          format: uri
+          description: URL to download the receipt document
+          example: "https://example.com/receipts/download/550e8400-e29b-41d4-a716-446655440000"
+      required:
+        - uuid
+        - name
+        - downloadUrl
+
+    Admin:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Display name of the admin
+          example: "John Doe"
+        address:
+          type: string
+          pattern: '^(0x)?[0-9a-f]{40}$'
+          description: Ethereum address of the admin (serves as unique identifier)
+          example: "0x742d35cc6670c02bb4bbecbb5fb95e8b7d7b36bf"
+      required:
+        - name
+        - address
+
+    AdminAction:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique action identifier
+          example: "action_12345"
+        adminAddress:
+          type: string
+          pattern: '^(0x)?[0-9a-f]{40}$'
+          description: Ethereum address of the admin who performed the action
+          example: "0x742d35cc6670c02bb4bbecbb5fb95e8b7d7b36bf"
+        adminName:
+          type: string
+          description: Name of the admin who performed the action
+          example: "John Doe"
+        action:
+          type: string
+          enum: [create_expense, update_expense, delete_expense, upload_receipt, delete_receipt, create_grant, update_grant, update_milestones, add_admin, remove_admin, update_transfer_party]
+          description: Type of action performed
+          example: "create_expense"
+        resourceType:
+          type: string
+          enum: [expense, receipt, grant, admin, transfer_party]
+          description: Type of resource the action was performed on
+          example: "expense"
+        resourceId:
+          type: string
+          description: ID of the resource that was acted upon
+          example: "exp_12345"
+        details:
+          type: object
+          description: Additional details about the action (varies by action type)
+          example: {"expenseName": "Flight to conference", "amount": "450.00"}
+        timestamp:
+          type: string
+          format: date-time
+          description: When the action was performed
+          example: "2023-12-15T10:30:00Z"
+      required:
+        - id
+        - adminAddress
+        - adminName
+        - action
+        - resourceType
+        - resourceId
+        - timestamp
+
+    Grant:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique grant identifier
+          example: "grant_12345"
+        name:
+          type: string
+          description: Name of the grant
+          example: "Ethereum Research Grant"
+        recipientName:
+          type: string
+          description: Name of the recipient
+          example: "Research Foundation"
+        description:
+          type: string
+          description: Description of the grant
+          example: "Research into Ethereum scalability solutions"
+        teamUrl:
+          type: string
+          format: uri
+          description: URL to the team's website
+          example: "https://example.com/team"
+          nullable: true
+        projectUrl:
+          type: string
+          format: uri
+          description: URL to the project
+          example: "https://github.com/example/project"
+          nullable: true
+        status:
+          type: string
+          description: Current status of the grant
+          example: "Milestone 2 completed"
+        recipientAddress:
+          type: string
+          pattern: '^(0x)?[0-9a-f]{40}$'
+          description: Ethereum address of the recipient
+          example: "0x742d35cc6670c02bb4bbecbb5fb95e8b7d7b36bf"
+        totalGrantAmount:
+          type: string
+          description: Total grant amount (as string to preserve precision)
+          example: "100000.0"
+        initialGrantAmount:
+          type: string
+          description: Initial grant amount (as string to preserve precision)
+          example: "25000.0"
+        startDate:
+          type: string
+          format: date
+          description: Start date of the grant
+          example: "2023-12-01"
+        expectedCompletionDate:
+          type: string
+          format: date
+          description: Expected completion date
+          example: "2024-06-01"
+        disbursements:
+          type: array
+          description: List of grant disbursements
+          items:
+            $ref: '#/components/schemas/Disbursement'
+        fundsUsage:
+          type: array
+          description: List of funds usage entries showing where grant funds have been used
+          items:
+            $ref: '#/components/schemas/FundsUsage'
+        amountGivenSoFar:
+          type: string
+          description: Total amount disbursed so far
+          example: "50000.0"
+        milestones:
+          type: array
+          description: List of grant milestones
+          items:
+            $ref: '#/components/schemas/Milestone'
+      required:
+        - id
+        - name
+        - recipientName
+        - description
+        - recipientAddress
+        - totalGrantAmount
+        - initialGrantAmount
+        - startDate
+        - expectedCompletionDate
+        - disbursements
+        - fundsUsage
+        - amountGivenSoFar
+        - milestones
+
+    Milestone:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique milestone identifier
+          example: "milestone_1"
+        name:
+          type: string
+          description: Milestone name
+          example: "Research Phase 1"
+        description:
+          type: string
+          description: Milestone description
+          example: "Complete initial research and documentation"
+        completed:
+          type: boolean
+          description: Whether the milestone has been completed
+          example: true
+        signedOff:
+          type: boolean
+          description: Whether the milestone has been signed off
+          example: false
+        grantAmount:
+          type: string
+          description: Grant amount for this milestone
+          example: "25000.0"
+      required:
+        - id
+        - name
+        - description
+        - completed
+        - signedOff
+        - grantAmount
+
+    Disbursement:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the disbursement
+          example: "b12f45e3-8e6d-4b4a-9c1d-7f8e9a0b1c2d"
+        grantId:
+          type: string
+          format: uuid
+          description: ID of the grant this disbursement belongs to
+          example: "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+        amount:
+          type: string
+          description: Disbursement amount (as string to preserve precision)
+          example: "25000.0"
+        txHash:
+          type: string
+          description: Transaction hash of the disbursement
+          example: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+        blockNumber:
+          type: integer
+          format: int64
+          description: Block number where the transaction was confirmed
+          example: 18500000
+        blockTimestamp:
+          type: integer
+          format: int64
+          description: Timestamp of the block containing the transaction
+          example: 1640995200
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the disbursement record was created
+          example: "2023-12-15T10:30:00Z"
+      required:
+        - id
+        - grantId
+        - amount
+        - txHash
+        - blockNumber
+        - blockTimestamp
+        - createdAt
+
+    CreateDisbursementRequest:
+      type: object
+      properties:
+        amount:
+          type: string
+          description: Disbursement amount (as string to preserve precision)
+          example: "25000.0"
+        txHash:
+          type: string
+          description: Transaction hash of the disbursement
+          pattern: '^0x[a-fA-F0-9]{64}$'
+          example: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+        blockNumber:
+          type: integer
+          format: int64
+          description: Block number where the transaction was confirmed
+          minimum: 0
+          example: 18500000
+        blockTimestamp:
+          type: integer
+          format: int64
+          description: Timestamp of the block containing the transaction
+          minimum: 0
+          example: 1640995200
+      required:
+        - amount
+        - txHash
+        - blockNumber
+        - blockTimestamp
+
+    UpdateDisbursementRequest:
+      type: object
+      properties:
+        amount:
+          type: string
+          description: Disbursement amount (as string to preserve precision)
+          example: "25000.0"
+        txHash:
+          type: string
+          description: Transaction hash of the disbursement
+          pattern: '^0x[a-fA-F0-9]{64}$'
+          example: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+        blockNumber:
+          type: integer
+          format: int64
+          description: Block number where the transaction was confirmed
+          minimum: 0
+          example: 18500000
+        blockTimestamp:
+          type: integer
+          format: int64
+          description: Timestamp of the block containing the transaction
+          minimum: 0
+          example: 1640995200
+      required:
+        - amount
+        - txHash
+        - blockNumber
+        - blockTimestamp
+
+    FundsUsage:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the funds usage entry
+          example: "b12f45e3-8e6d-4b4a-9c1d-7f8e9a0b1c2d"
+        grantId:
+          type: string
+          format: uuid
+          description: ID of the grant this funds usage belongs to
+          example: "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+        item:
+          type: string
+          description: Description of the item purchased
+          example: "Development Laptop"
+        quantity:
+          type: integer
+          description: Quantity of items purchased
+          minimum: 1
+          example: 1
+        price:
+          type: string
+          description: Price per item (as string to preserve precision)
+          example: "1200.00"
+        purpose:
+          type: string
+          description: Purpose of the expenditure
+          example: "Development work for milestone 1"
+        category:
+          type: string
+          description: Category of the expense
+          example: "Hardware"
+        date:
+          type: string
+          format: date
+          description: Date of the expense
+          example: "2023-12-15"
+        txHash:
+          type: string
+          description: Optional transaction hash if paid on-chain
+          pattern: '^0x[a-fA-F0-9]{64}$'
+          example: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the funds usage record was created
+          example: "2023-12-15T10:30:00Z"
+      required:
+        - id
+        - grantId
+        - item
+        - quantity
+        - price
+        - purpose
+        - category
+        - date
+        - createdAt
+
+    CreateFundsUsageRequest:
+      type: object
+      properties:
+        item:
+          type: string
+          description: Description of the item purchased
+          example: "Development Laptop"
+          minLength: 1
+          maxLength: 255
+        quantity:
+          type: integer
+          description: Quantity of items purchased
+          minimum: 1
+          example: 1
+        price:
+          type: string
+          description: Price per item (as string to preserve precision)
+          pattern: '^[0-9]+(\.[0-9]+)?$'
+          example: "1200.00"
+        purpose:
+          type: string
+          description: Purpose of the expenditure
+          example: "Development work for milestone 1"
+          minLength: 1
+        category:
+          type: string
+          description: Category of the expense
+          example: "Hardware"
+          minLength: 1
+          maxLength: 100
+        date:
+          type: string
+          format: date-time
+          description: Date of the expense
+          example: "2023-12-15T15:04:05"
+        txHash:
+          type: string
+          description: Optional transaction hash if paid on-chain
+          pattern: '^0x[a-fA-F0-9]{64}$'
+          example: "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+          nullable: true
+      required:
+        - item
+        - quantity
+        - price
+        - purpose
+        - category
+        - date
+
+    UpdateFundsUsageRequest:
+      type: object
+      properties:
+        item:
+          type: string
+          description: Description of the item purchased
+          example: "Updated Development Laptop"
+          minLength: 1
+          maxLength: 255
+        quantity:
+          type: integer
+          description: Quantity of items purchased
+          minimum: 1
+          example: 1
+        price:
+          type: string
+          description: Price per item (as string to preserve precision)
+          pattern: '^[0-9]+(\.[0-9]+)?$'
+          example: "1500.00"
+        purpose:
+          type: string
+          description: Purpose of the expenditure
+          example: "Updated development work for milestone 2"
+          minLength: 1
+        category:
+          type: string
+          description: Category of the expense
+          example: "Hardware"
+          minLength: 1
+          maxLength: 100
+        date:
+          type: string
+          format: date
+          description: Date of the expense
+          example: "2023-12-20"
+        txHash:
+          type: string
+          description: Optional transaction hash if paid on-chain
+          pattern: '^0x[a-fA-F0-9]{64}$'
+          example: "0x1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+          nullable: true
+      required:
+        - item
+        - quantity
+        - price
+        - purpose
+        - category
+        - date
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+tags:
+  - name: Auth
+    description: Authentication endpoints
+  - name: Admins
+    description: Administrator management endpoints
+  - name: Expenses
+    description: Expense management endpoints
+  - name: Grants
+    description: Grant management endpoints
+  - name: Treasury
+    description: Treasury and asset management endpoints
+  - name: Transfers
+    description: Transfer and transaction management endpoints
+  - name: Settings
+    description: Organization settings and configuration endpoints

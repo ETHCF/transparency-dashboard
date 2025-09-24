@@ -1,0 +1,5 @@
+/scripts
+/bin
+/docker-compose.yaml
+/.env
+/.env.sample

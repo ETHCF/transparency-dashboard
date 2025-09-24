@@ -1,0 +1,123 @@
+
+namespace: default
+fullnameOverride:
+nameOverride:
+
+global:
+  initialAdminAddress: ""
+  alchemy:
+    existingSecret: 
+    apiKeySecretKey: "apiKey"
+    apiKey: "your-alchemy-api-key-here"
+  rpcURL:
+
+backend:
+  verbosity: "info"
+  image:
+    registry: docker.io
+    repository: ethcf/transparency
+    tag: "backend-v0.0.3"
+    pullPolicy: IfNotPresent
+
+  tracker:
+    resources:
+      limits:
+        cpu: 200m
+        memory: 256Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+    additionalLabels: {}
+  api:
+    ingress:
+      enabled: false
+      ingressClassName: nginx
+      annotations:
+        nginx.org/mergeable-ingress-type: minion
+      host: example.com
+      tlsSecret: "example"
+      path: /api/v1
+
+    autoscaler:
+      enabled: true
+      replicas: 1
+      minReplicas: 1
+      maxReplicas: 3
+      targetCPUUtil: 70
+    service:
+      type: ClusterIP
+      exposedPort: 80
+      internalPort: 8080
+    resources:
+      limits:
+        cpu: 200m
+        memory: 256Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+    additionalLabels: {}
+
+
+
+dashboard:
+  image:
+    registry: docker.io
+    repository: ethcf/transparency
+    tag: "frontend-v0.0.3"
+    pullPolicy: IfNotPresent
+
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+    annotations:
+      nginx.org/mergeable-ingress-type: minion
+    host: example.com
+    tlsSecret: "example"
+    path: /
+
+  service:
+      type: ClusterIP
+      exposedPort: 80
+      internalPort: 8080
+  autoscaler:
+    enabled: true
+    replicas: 1
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtil: 70
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  additionalLabels: {}
+
+
+externalPostgresql:
+  host: 
+  port: 5432
+  database:
+  username:
+  password:
+  existingSecret:
+  secretKeys:
+    usernameKey: "username"
+    passwordKey: "password"
+
+# See https://github.com/bitnami/charts/blob/main/bitnami/postgresql/values.yaml
+postgresql:
+  enabled: true
+  auth:
+      postgresPassword: ""
+      username: ""
+      password: ""
+      database: ""
+      existingSecret: ""
+      secretKeys:
+        adminPasswordKey: ""
+        userPasswordKey: ""
+        replicationPasswordKey: ""
+
+

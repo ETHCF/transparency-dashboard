@@ -1,0 +1,164 @@
+:root {
+  --color-bg: #090b17;
+  --color-surface: #101226;
+  --color-surface-elevated: #171a31;
+  --color-border: #272b4a;
+  --color-text: #f5f6ff;
+  --color-text-muted: #a0a5c5;
+  --color-primary: #5c6cff;
+  --color-success: #37d29d;
+  --color-warning: #f0b429;
+  --color-danger: #f25f5c;
+  --font-family:
+    "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --shadow-sm: 0 1px 2px rgba(9, 11, 23, 0.15);
+  --shadow-md: 0 20px 40px rgba(9, 11, 23, 0.35);
+  --spacing-2: 0.125rem;
+  --spacing-4: 0.25rem;
+  --spacing-6: 0.375rem;
+  --spacing-8: 0.5rem;
+  --spacing-10: 0.625rem;
+  --spacing-12: 0.75rem;
+  --spacing-16: 1rem;
+  --spacing-20: 1.25rem;
+  --spacing-24: 1.5rem;
+  --spacing-32: 2rem;
+  --spacing-40: 2.5rem;
+  --spacing-48: 3rem;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(92, 108, 255, 0.08), transparent 55%),
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(92, 108, 255, 0.05),
+      transparent 45%
+    ),
+    var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-family);
+  line-height: 1.5;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.5rem 1.1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease,
+    color 0.2s ease;
+  text-decoration: none;
+  color: var(--color-text);
+  background: rgba(92, 108, 255, 0.16);
+  border-color: rgba(92, 108, 255, 0.3);
+}
+
+.btn:hover,
+.btn:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(9, 12, 30, 0.35);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btnPrimary {
+  background: linear-gradient(135deg, rgba(92, 108, 255, 0.9), rgba(92, 108, 255, 0.65));
+  border-color: rgba(92, 108, 255, 0.7);
+}
+
+.btnPrimary:hover,
+.btnPrimary:focus-visible {
+  background: linear-gradient(135deg, rgba(92, 108, 255, 1), rgba(92, 108, 255, 0.8));
+  border-color: rgba(92, 108, 255, 0.9);
+}
+
+.btnDanger {
+  background: linear-gradient(135deg, rgba(242, 95, 92, 0.9), rgba(242, 95, 92, 0.7));
+  border-color: rgba(242, 95, 92, 0.75);
+}
+
+.btnDanger:hover,
+.btnDanger:focus-visible {
+  background: linear-gradient(135deg, rgba(242, 95, 92, 1), rgba(242, 95, 92, 0.82));
+  border-color: rgba(242, 95, 92, 0.9);
+}
+
+.btnGhost {
+  background: transparent;
+  color: var(--color-text-muted);
+  border-color: rgba(92, 108, 255, 0.35);
+}
+
+.btnGhost:hover,
+.btnGhost:focus-visible {
+  color: var(--color-text);
+  background: rgba(92, 108, 255, 0.18);
+}
+
+::selection {
+  background: rgba(92, 108, 255, 0.3);
+  color: var(--color-text);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  font-weight: 600;
+}
+
+p {
+  margin: 0;
+}

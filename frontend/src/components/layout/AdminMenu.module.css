@@ -1,0 +1,59 @@
+.menu {
+  position: relative;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(92, 108, 255, 0.3);
+  background: rgba(92, 108, 255, 0.12);
+  color: var(--color-text);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.trigger:hover,
+.trigger:focus-visible {
+  border-color: rgba(92, 108, 255, 0.6);
+  background: rgba(92, 108, 255, 0.22);
+  transform: translateY(-1px);
+}
+
+.caret {
+  font-size: 0.8rem;
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+  padding: 0.4rem;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-elevated);
+  border: 1px solid rgba(92, 108, 255, 0.25);
+  box-shadow: var(--shadow-md);
+  z-index: 10;
+  gap: 0.25rem;
+}
+
+.item {
+  padding: 0.5rem 0.6rem;
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.item:hover,
+.item:focus-visible {
+  background: rgba(92, 108, 255, 0.18);
+}

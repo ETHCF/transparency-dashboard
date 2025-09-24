@@ -1,0 +1,10 @@
+apiVersion: v1
+appVersion: "1.0"
+description: Transparency Dashboard Helm Chart
+name: transparency
+version: 0.0.3
+dependencies:
+- name: postgresql
+  version: "16.7.27" # Specify the desired version of the PostgreSQL chart
+  repository: "https://charts.bitnami.com/bitnami"
+  condition: postgresql.enabled # Optional: Allows enabling/disabling PostgreSQL

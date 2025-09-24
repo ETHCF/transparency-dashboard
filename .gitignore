@@ -1,0 +1,5 @@
+/backend/bin
+/frontend/node_modules
+/backend/scripts/.venv
+/backend/.env
+/helm/charts

@@ -1,0 +1,30 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+}
+
+.labelRow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--spacing-8);
+}
+
+.label {
+  font-weight: 600;
+}
+
+.optional {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.hint {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.error {
+  color: var(--color-danger);
+  font-size: 0.85rem;
+}

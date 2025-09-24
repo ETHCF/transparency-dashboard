@@ -1,0 +1,24 @@
+.bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    rgba(92, 108, 255, 0.2),
+    rgba(92, 108, 255, 0.8)
+  );
+  animation: shimmer 1.2s linear infinite;
+  z-index: 50;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+}

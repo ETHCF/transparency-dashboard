@@ -1,0 +1,28 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-20);
+  gap: var(--spacing-12);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: var(--shadow-sm);
+  min-height: 140px;
+}
+
+.label {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.value {
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.caption {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}

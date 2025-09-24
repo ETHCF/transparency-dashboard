@@ -1,0 +1,24 @@
+.textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: var(--spacing-12);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--color-text);
+  font-size: 0.95rem;
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+  resize: vertical;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: rgba(92, 108, 255, 0.6);
+  background: rgba(92, 108, 255, 0.1);
+}
+
+.textareaError {
+  border-color: rgba(242, 95, 92, 0.6);
+}

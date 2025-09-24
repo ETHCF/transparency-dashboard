@@ -1,0 +1,25 @@
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+}
+
+.button {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text);
+  padding: var(--spacing-8) var(--spacing-12);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.label {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}

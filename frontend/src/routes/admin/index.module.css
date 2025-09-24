@@ -1,0 +1,59 @@
+.actionGrid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.actionCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: var(--spacing-20);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+      135deg,
+      rgba(92, 108, 255, 0.08),
+      transparent 65%
+    ),
+    var(--color-surface-elevated);
+  border: 1px solid rgba(92, 108, 255, 0.2);
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+  color: var(--color-text);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.actionCard:hover,
+.actionCard:focus-visible {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary);
+  background: linear-gradient(
+      135deg,
+      rgba(92, 108, 255, 0.18),
+      transparent 60%
+    ),
+    var(--color-surface-elevated);
+}
+
+.actionTitle {
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.actionDescription {
+  margin: 0;
+  color: var(--color-text-muted);
+  flex: 1;
+  line-height: 1.5;
+}
+
+.actionLink {
+  font-weight: 600;
+  color: var(--color-primary);
+}

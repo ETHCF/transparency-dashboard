@@ -1,0 +1,54 @@
+version: '3.4'
+
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_PASSWORD: tpd
+      POSTGRES_DB: tpd
+      POSTGRES_USER: tpd
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tpd"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  api:
+    image: transparency-backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DBNAME: tpd
+      DBUSER: tpd
+      DBPASSWORD: tpd
+      DBHOST: postgres
+      DBPORT: "5432"
+      LISTEN: "0.0.0.0:8080"
+      INITIAL_ADMIN_ADDRESS: "0x11A282e7bB9bE921313dDB6DAa2afbff920231C9"
+    ports:
+      - "8080:8080"
+    command: ["api"]
+    restart: always
+  tracker:
+    image: transparency-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DBNAME: tpd
+      DBUSER: tpd
+      DBPASSWORD: tpd
+      DBHOST: postgres
+      DBPORT: "5432"
+      ALCHEMY_API_KEY: ${ALCHEMY_API_KEY}
+      
+    command: ["tx-tracking"]
+    restart: always
+networks:
+  default:
+    name: transparency

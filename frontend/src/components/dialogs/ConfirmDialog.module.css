@@ -1,0 +1,51 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(9, 11, 23, 0.6);
+  backdrop-filter: blur(6px);
+}
+
+.content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(420px, 90vw);
+  padding: var(--spacing-24);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+}
+
+.title {
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.description {
+  color: var(--color-text-muted);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--spacing-12);
+}
+
+.button {
+  padding: var(--spacing-10) var(--spacing-16);
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.danger {
+  background: rgba(242, 95, 92, 0.2);
+  border-color: rgba(242, 95, 92, 0.5);
+}
