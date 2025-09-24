@@ -148,13 +148,20 @@ export interface GrantDisbursementCreatePayload {
 export interface GrantDisbursementUpdatePayload
   extends GrantDisbursementCreatePayload {}
 
+export type GrantMilestoneStatus = "pending" | "completed" | "signed_off" | string;
+
 export interface GrantMilestoneDto {
   id: string;
+  grantId?: string;
   name: string;
   description: string;
-  completed: boolean;
-  signedOff: boolean;
   grantAmount: string;
+  status?: GrantMilestoneStatus;
+  completed: boolean;
+  orderIndex?: number;
+  signedOff: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface GrantMilestonesResponse {
@@ -244,10 +251,11 @@ export interface GrantPayload {
 
 export interface GrantMilestoneUpdatePayload {
   milestones: Array<{
-    id: string;
-    description?: string;
-    name?: string;
-    grantAmount?: string;
+    id?: string;
+    title: string;
+    description: string;
+    amount: string;
+    status?: GrantMilestoneStatus;
     completed?: boolean;
     signedOff?: boolean;
   }>;

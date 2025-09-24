@@ -367,10 +367,7 @@ export const mapGrant = (dto: GrantDto): Grant => ({
   amountGivenSoFar: toNumber(dto.amountGivenSoFar),
   totalGrantAmount: toNumber(dto.totalGrantAmount),
   initialGrantAmount: toNumber(dto.initialGrantAmount),
-  milestones: ensureArray(dto.milestones).map((milestone) => ({
-    ...milestone,
-    grantAmount: toNumber(milestone.grantAmount),
-  })),
+  milestones: ensureArray(dto.milestones).map(mapGrantMilestone),
   disbursements: mapGrantDisbursements(dto.disbursements),
   fundsUsage: ensureArray(dto.fundsUsage).map(mapExpense),
 });
@@ -380,6 +377,12 @@ export const mapGrantMilestone = (
 ): GrantMilestone => ({
   ...milestone,
   grantAmount: toNumber(milestone.grantAmount),
+  orderIndex:
+    milestone.orderIndex !== undefined && milestone.orderIndex !== null
+      ? Number(milestone.orderIndex)
+      : undefined,
+  createdAt: milestone.createdAt ? toDate(milestone.createdAt) : undefined,
+  updatedAt: milestone.updatedAt ? toDate(milestone.updatedAt) : undefined,
 });
 
 export const mapGrantMilestonesResponse = (

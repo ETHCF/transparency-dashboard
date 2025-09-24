@@ -10,10 +10,32 @@ import { TextArea } from "@/components/forms/TextArea";
 import { Page, PageSection } from "@/components/layout/Page";
 import { useGrantMilestonesQuery, useUpdateGrantMilestonesMutation } from "@/services/grants";
 import { useUiStore } from "@/stores/ui";
+import type { GrantMilestoneStatus } from "@/types/api";
 import type { GrantMilestone } from "@/types/domain";
 
+const resolveMilestoneStatus = (
+  milestone: Pick<GrantMilestone, "status" | "completed" | "signedOff">,
+): GrantMilestoneStatus => {
+  if (milestone.signedOff) {
+    return "signed_off";
+  }
+
+  if (milestone.completed) {
+    return "completed";
+  }
+
+  if (milestone.status && milestone.status.trim() !== "") {
+    return milestone.status;
+  }
+
+  return "pending";
+};
+
 const cloneMilestones = (milestones: GrantMilestone[]): GrantMilestone[] =>
-  milestones.map((milestone) => ({ ...milestone }));
+  milestones.map((milestone) => ({
+    ...milestone,
+    status: resolveMilestoneStatus(milestone),
+  }));
 
 const MilestoneManagerPage = () => {
   const { grantId } = Route.useParams();
@@ -34,9 +56,19 @@ const MilestoneManagerPage = () => {
     value: GrantMilestone[K],
   ) => {
     setDrafts((prev) =>
-      prev.map((milestone) =>
-        milestone.id === id ? { ...milestone, [key]: value } : milestone,
-      ),
+      prev.map((milestone) => {
+        if (milestone.id !== id) {
+          return milestone;
+        }
+
+        const nextMilestone = { ...milestone, [key]: value };
+
+        if (key === "completed" || key === "signedOff") {
+          nextMilestone.status = resolveMilestoneStatus(nextMilestone);
+        }
+
+        return nextMilestone;
+      }),
     );
   };
 
@@ -46,9 +78,12 @@ const MilestoneManagerPage = () => {
     await updateMutation.mutateAsync({
       milestones: drafts.map((milestone) => ({
         id: milestone.id,
-        name: milestone.name,
-        description: milestone.description ?? "",
-        grantAmount: milestone.grantAmount.toString(),
+        title: milestone.name.trim(),
+        description: (milestone.description ?? "").trim(),
+        amount: Number.isFinite(milestone.grantAmount)
+          ? milestone.grantAmount.toString()
+          : "0",
+        status: resolveMilestoneStatus(milestone),
         completed: milestone.completed,
         signedOff: milestone.signedOff,
       })),

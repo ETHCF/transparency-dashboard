@@ -22,6 +22,24 @@ import { AddressLink } from "@/components/common/AddressLink";
 import type { ColumnDef } from "@/components/table/DataTable";
 import type { Expense, GrantDisbursement, GrantMilestone } from "@/types/domain";
 
+const getMilestoneStatusDisplay = (milestone: GrantMilestone) => {
+  const normalizedStatus =
+    milestone.status && milestone.status.trim() !== ""
+      ? milestone.status
+      : milestone.completed
+        ? "completed"
+        : "pending";
+
+  switch (normalizedStatus) {
+    case "signed_off":
+      return { label: "Signed off", variant: "success" as const };
+    case "completed":
+      return { label: "Completed", variant: "success" as const };
+    default:
+      return { label: "Pending", variant: "info" as const };
+  }
+};
+
 const milestoneColumns: ColumnDef<GrantMilestone>[] = [
   {
     key: "name",
@@ -42,14 +60,12 @@ const milestoneColumns: ColumnDef<GrantMilestone>[] = [
     align: "right",
   },
   {
-    key: "completed",
+    key: "status",
     header: "Status",
-    render: (milestone) => (
-      <StatusPill
-        status={milestone.completed ? "Completed" : "In progress"}
-        variant={milestone.completed ? "success" : "info"}
-      />
-    ),
+    render: (milestone) => {
+      const { label, variant } = getMilestoneStatusDisplay(milestone);
+      return <StatusPill status={label} variant={variant} />;
+    },
     align: "center",
   },
   {

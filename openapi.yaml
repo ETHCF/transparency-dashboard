@@ -1245,15 +1245,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                milestones:
-                  type: array
-                  description: List of grant milestones
-                  items:
-                    $ref: '#/components/schemas/Milestone'
-              required:
-                - milestones
+              $ref: '#/components/schemas/UpdateMilestonesRequest'
       responses:
         '200':
           description: Grant milestones updated successfully
@@ -2497,6 +2489,52 @@ components:
         - purpose
         - category
         - date
+
+    UpdateMilestonesRequest:
+      type: object
+      properties:
+        milestones:
+          type: array
+          description: List of grant milestones to update
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Milestone ID (optional, will generate new UUID if not provided)
+                example: "550e8400-e29b-41d4-a716-446655440000"
+              title:
+                type: string
+                description: Milestone title/name
+                example: "Research Phase 1"
+                minLength: 1
+              description:
+                type: string
+                description: Milestone description
+                example: "Complete initial research and documentation"
+                minLength: 1
+              amount:
+                type: string
+                description: Grant amount for this milestone (as string to preserve precision)
+                example: "25000.0"
+              status:
+                type: string
+                description: Current status of the milestone
+                example: "in_progress"
+              completed:
+                type: boolean
+                description: Whether the milestone has been completed
+                example: false
+              signedOff:
+                type: boolean
+                description: Whether the milestone has been signed off by administrators
+                example: false
+            required:
+              - title
+              - description
+              - amount
+      required:
+        - milestones
 
   securitySchemes:
     bearerAuth:

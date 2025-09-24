@@ -62,8 +62,11 @@ export interface ExpenseReceipt {
   downloadUrl: string;
 }
 
-export interface GrantMilestone extends Omit<GrantMilestoneDto, "grantAmount"> {
+export interface GrantMilestone
+  extends Omit<GrantMilestoneDto, "grantAmount" | "createdAt" | "updatedAt"> {
   grantAmount: number;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface GrantDisbursement
