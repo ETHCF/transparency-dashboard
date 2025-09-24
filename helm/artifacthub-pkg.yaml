@@ -1,6 +1,5 @@
 name: transparency-dashboard
 displayName: Transparency Dashboard
-createdAt: The date this package was created (RFC3339 layout) (required)
 description: |
   A Helm chart for deploying the Transparency Dashboard
 license: MIT
