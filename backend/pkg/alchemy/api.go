@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cockroachdb/errors"
+	"github.com/numbergroup/errors"
 
 	"github.com/ETHCF/transparency-dashboard/backend/pkg/config"
 )

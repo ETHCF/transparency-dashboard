@@ -3,7 +3,7 @@ package auth
 import (
 	"strings"
 
-	"github.com/cockroachdb/errors"
+	"github.com/numbergroup/errors"
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/numbergroup/siwe-go"
 )

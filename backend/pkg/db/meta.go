@@ -4,7 +4,7 @@ import (
 	"context"
 	"strconv"
 
-	"github.com/cockroachdb/errors"
+	"github.com/numbergroup/errors"
 	"github.com/jmoiron/sqlx"
 )
 

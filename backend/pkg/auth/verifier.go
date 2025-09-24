@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/cockroachdb/errors"
+	"github.com/numbergroup/errors"
 	"github.com/google/uuid"
 	"github.com/numbergroup/siwe-go"
 	"github.com/sirupsen/logrus"

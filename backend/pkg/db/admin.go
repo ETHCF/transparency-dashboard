@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/cockroachdb/errors"
+	"github.com/numbergroup/errors"
 	"github.com/innodv/psql"
 	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"

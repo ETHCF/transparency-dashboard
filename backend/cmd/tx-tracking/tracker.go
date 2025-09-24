@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/ETHCF/ethutils"
-	"github.com/cockroachdb/errors"
+	"github.com/numbergroup/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/ETHCF/transparency-dashboard/backend/pkg/alchemy"

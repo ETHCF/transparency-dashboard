@@ -20,6 +20,18 @@ import { useUiStore } from "@/stores/ui";
 import type { Expense } from "@/types/domain";
 import { formatCurrency, formatDate } from "@/utils/format";
 
+const normalizeDateInput = (value: string): string => {
+  if (!value) {
+    return value;
+  }
+
+  if (value.includes("T")) {
+    return value;
+  }
+
+  return `${value}T00:00:00Z`;
+};
+
 const createSchema = z.object({
   item: z.string().min(1),
   quantity: z.coerce.number().min(1),
@@ -101,7 +113,7 @@ const FundsUsageManagerPage = () => {
         price: usage.priceInput,
         purpose: usage.purpose,
         category: usage.category,
-        date: usage.dateInput,
+        date: normalizeDateInput(usage.dateInput),
         txHash: usage.txHash ?? undefined,
       },
     });
@@ -116,7 +128,7 @@ const FundsUsageManagerPage = () => {
       price: values.price,
       purpose: values.purpose,
       category: values.category,
-      date: values.date,
+      date: normalizeDateInput(values.date),
       txHash: values.txHash ?? undefined,
     });
 

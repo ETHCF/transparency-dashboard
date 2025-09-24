@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/ETHCF/transparency-dashboard/backend/pkg/constants"
-	"github.com/cockroachdb/errors"
+	"github.com/numbergroup/errors"
 	"gopkg.in/guregu/null.v4"
 )
 

@@ -9,7 +9,7 @@ import (
 	"database/sql"
 	"encoding/pem"
 
-	"github.com/cockroachdb/errors"
+	"github.com/numbergroup/errors"
 	"github.com/jmoiron/sqlx"
 	"github.com/sirupsen/logrus"
 
