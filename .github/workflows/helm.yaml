@@ -14,8 +14,6 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
     - name: Google Auth
       id: auth
       uses: 'google-github-actions/auth@v2'
@@ -23,6 +21,8 @@ jobs:
         token_format: 'access_token'
         workload_identity_provider: '${{ secrets.WIF_PROVIDER_ID }}'
         service_account: '${{ secrets.SERVICE_ACCOUNT_EMAIL }}'
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
     - name: Docker Auth
       id: docker-auth
       uses: 'docker/login-action@v3'
@@ -40,7 +40,8 @@ jobs:
       with:
         from-file: 'helm/values.yaml'
         to-file: 'helm/values.yaml'
-        merge: "{ 'backend.image.tag': 'backend-${{ github.ref_name }}', 'dashboard.image.tag': 'frontend-${{ github.ref_name }}' }"
+        merge: |
+          { "backend.image.tag": "backend-${{ github.ref_name }}", "dashboard.image.tag": "frontend-${{ github.ref_name }}" }
     - name: Show modified values.yaml
       run: echo " ${{ steps.yaml-action.outputs.data }}"
     - name: Package Helm Chart
