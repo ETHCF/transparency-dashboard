@@ -16,7 +16,7 @@ backend:
   image:
     registry: docker.io
     repository: ethcf/transparency
-    tag: "backend-v0.0.3"
+    tag: "backend-v0.0.4"
     pullPolicy: IfNotPresent
 
   tracker:
@@ -63,7 +63,7 @@ dashboard:
   image:
     registry: docker.io
     repository: ethcf/transparency
-    tag: "frontend-v0.0.3"
+    tag: "frontend-v0.0.4"
     pullPolicy: IfNotPresent
 
   ingress:
