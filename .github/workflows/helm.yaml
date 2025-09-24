@@ -6,6 +6,9 @@ on:
     - 'v*.*.*'
 jobs:
   helm:
+    permissions: 
+      id-token: write
+      contents: read
     name: Package Helm Chart
     runs-on: ubuntu-latest
     steps:
@@ -35,8 +38,8 @@ jobs:
       id: yaml-action
       uses: teunmooij/yaml@v1
       with:
-        from-file: 'helm/values.yml'
-        to-file: 'helm/values.yml'
+        from-file: 'helm/values.yaml'
+        to-file: 'helm/values.yaml'
         merge: "{ 'backend.image.tag': 'backend-${{ github.ref_name }}', 'dashboard.image.tag': 'frontend-${{ github.ref_name }}' }"
     - name: Show modified values.yaml
       run: echo " ${{ steps.yaml-action.outputs.data }}"
