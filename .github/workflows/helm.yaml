@@ -42,8 +42,8 @@ jobs:
         to-file: 'helm/values.yaml'
         merge: |
           { "backend.image.tag": "backend-${{ github.ref_name }}", "dashboard.image.tag": "frontend-${{ github.ref_name }}" }
-    - name: Show modified values.yaml
-      run: echo " ${{ steps.yaml-action.outputs.data }}"
+    - name: Fetch dependencies for helm chart
+      run: helm dependency update ./helm
     - name: Package Helm Chart
       run: helm package ./helm --version "${{ github.ref_name }}" --app-version "${{ github.ref_name }}"
     - name: Publish Helm Chart to Artifact Registry
