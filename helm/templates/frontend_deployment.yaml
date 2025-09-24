@@ -37,14 +37,14 @@ spec:
         runAsNonRoot: true
         seccompProfile:
           type: RuntimeDefault
-        fsGroup: 1001
+        fsGroup: 101
       containers:
         - name: dashboard
           securityContext:
             allowPrivilegeEscalation: false
-            runAsUser: 1001
+            runAsUser: 101
             runAsNonRoot: true
-            readOnlyRootFilesystem: true
+            readOnlyRootFilesystem: false
             capabilities:
               drop:
                 - ALL
@@ -76,11 +76,11 @@ spec:
           resources:
             {{- toYaml $dashboard.resources | nindent 14 }}
           volumeMounts:
-          - name: config
-            mountPath: /etc/nginx/conf.d/
+          - name: nginx
+            mountPath: /etc/nginx/conf.d/default.conf
             subPath: default.conf
             readOnly: true
       volumes:
-      - name: config
+      - name: nginx
         configMap:
-          name: {{ $name }}
+          name: {{ $name }}-nginx

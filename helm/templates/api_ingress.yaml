@@ -21,7 +21,6 @@ metadata:
 spec:
   ingressClassName: {{ $api.ingress.ingressClassName }}
   tls:
-  - hosts:
     - secretName: {{ $api.ingress.tlsSecret }}
       hosts:
         - {{ $api.ingress.host }}

@@ -16,10 +16,11 @@ backend:
   image:
     registry: docker.io
     repository: ethcf/transparency
-    tag: "backend-v0.0.4"
+    tag: "backend-v0.1.1"
     pullPolicy: IfNotPresent
 
   tracker:
+    command: tx-tracking
     resources:
       limits:
         cpu: 200m
@@ -29,6 +30,7 @@ backend:
         memory: 128Mi
     additionalLabels: {}
   api:
+    command: api
     ingress:
       enabled: false
       ingressClassName: nginx
@@ -63,7 +65,7 @@ dashboard:
   image:
     registry: docker.io
     repository: ethcf/transparency
-    tag: "frontend-v0.0.4"
+    tag: "frontend-v0.1.1"
     pullPolicy: IfNotPresent
 
   ingress:
@@ -109,15 +111,23 @@ externalPostgresql:
 # See https://github.com/bitnami/charts/blob/main/bitnami/postgresql/values.yaml
 postgresql:
   enabled: true
+  primary:
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        cpu: 200m
+        memory: 512Mi
   auth:
-      postgresPassword: ""
-      username: ""
-      password: ""
-      database: ""
-      existingSecret: ""
-      secretKeys:
-        adminPasswordKey: ""
-        userPasswordKey: ""
-        replicationPasswordKey: ""
+    postgresPassword: 
+    username:
+    password:
+    database: 
+    existingSecret: 
+    secretKeys:
+      adminPasswordKey: "postgres-password"
+      userPasswordKey: "postgres-password"
+      replicationPasswordKey: "replication-password" 
 
 
