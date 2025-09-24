@@ -127,7 +127,7 @@ postgresql:
     existingSecret: 
     secretKeys:
       adminPasswordKey: "postgres-password"
-      userPasswordKey: "postgres-password"
+      userPasswordKey: "user-password"
       replicationPasswordKey: "replication-password" 
 
 
