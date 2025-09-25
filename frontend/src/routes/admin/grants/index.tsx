@@ -30,6 +30,20 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
+const toIsoDateString = (value: string) => {
+  if (!value) {
+    return value;
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return date.toISOString();
+};
+
 const GrantsAdminPage = () => {
   const grantsQuery = useGrantsQuery();
   const createMutation = useCreateGrantMutation();
@@ -46,8 +60,8 @@ const GrantsAdminPage = () => {
       status: values.status,
       totalGrantAmount: values.totalGrantAmount,
       initialGrantAmount: values.initialGrantAmount,
-      startDate: values.startDate,
-      expectedCompletionDate: values.expectedCompletionDate,
+      startDate: toIsoDateString(values.startDate),
+      expectedCompletionDate: toIsoDateString(values.expectedCompletionDate),
       teamUrl: values.teamUrl || undefined,
       projectUrl: values.projectUrl || undefined,
       milestones: [],
