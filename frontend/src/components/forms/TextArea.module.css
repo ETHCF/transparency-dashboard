@@ -3,9 +3,9 @@
   min-height: 120px;
   padding: var(--spacing-12);
   border-radius: var(--radius-md);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid var(--border-form);
   background: rgba(255, 255, 255, 0.04);
-  color: var(--color-text);
+  color: var(--input-text);
   font-size: 0.95rem;
   transition:
     border-color 0.2s ease,
