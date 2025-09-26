@@ -3,10 +3,10 @@
   flex-direction: column;
   padding: var(--spacing-20);
   gap: var(--spacing-12);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: var(--shadow-sm);
+  border-radius: 4px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  /* box-shadow: var(--shadow-sm); */
   min-height: 140px;
 }
 
@@ -20,9 +20,10 @@
 .value {
   font-size: 2rem;
   font-weight: 600;
+  color: var(--color-dark);
 }
 
 .caption {
   font-size: 0.9rem;
-  color: var(--color-text-muted);
+  color: var(--color-dark);
 }

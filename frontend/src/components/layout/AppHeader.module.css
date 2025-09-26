@@ -4,12 +4,7 @@
   justify-content: space-between;
   padding: var(--spacing-16) var(--spacing-24);
   border-bottom: 1px solid var(--color-border);
-  background: linear-gradient(
-    135deg,
-    rgba(92, 108, 255, 0.1),
-    rgba(9, 11, 23, 0.6)
-  );
-  backdrop-filter: blur(12px);
+
   position: sticky;
   top: 0;
   z-index: 20;

@@ -24,13 +24,10 @@
   transition: background 0.15s ease;
 }
 
-.row:hover {
-  background: rgba(92, 108, 255, 0.06);
-}
-
 .cell {
   padding: var(--spacing-12) var(--spacing-16);
   border-bottom: 1px solid rgba(15, 23, 42, 0.05);
+  color: var(--color-dark);
 }
 
 .numeric {

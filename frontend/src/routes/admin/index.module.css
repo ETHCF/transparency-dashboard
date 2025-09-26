@@ -9,7 +9,7 @@
   flex-direction: column;
   gap: 0.75rem;
   padding: var(--spacing-20);
-  border-radius: var(--radius-lg);
+  border-radius: 4px;
   background: linear-gradient(
       135deg,
       rgba(92, 108, 255, 0.08),

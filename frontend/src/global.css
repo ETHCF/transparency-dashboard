@@ -1,14 +1,16 @@
 :root {
-  --color-bg: #f1f5f9;
+  --color-bg: #FFFFFF;
   --color-surface: #101226;
   --color-surface-elevated: #171a31;
   --color-border: #272b4a;
   --color-text: #64748b;
   --color-text-muted: #64748b;
+  --color-dark: #0F172A;
   --color-primary: #5c6cff;
   --color-success: #37d29d;
   --color-warning: #f0b429;
   --color-danger: #f25f5c;
+  --border-color-bright: #E2E8F0;
   --font-family:
     "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
