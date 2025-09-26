@@ -6,6 +6,8 @@
   --color-text: #64748b;
   --color-text-muted: #64748b;
   --color-dark: #0F172A;
+  --color-white: #FFFFFF;
+  --color-off-white: #E2E8F0;
   --color-primary: #5c6cff;
   --color-success: #37d29d;
   --color-warning: #f0b429;
@@ -95,14 +97,15 @@ textarea {
     color 0.2s ease;
   text-decoration: none;
   color: var(--color-text);
-  background: rgba(92, 108, 255, 0.16);
+  background: var(--color-dark);
   border-color: rgba(92, 108, 255, 0.3);
 }
 
 .btn:hover,
 .btn:focus-visible {
+  text-decoration: none;
   transform: translateY(-1px);
-  box-shadow: 0 8px 18px rgba(9, 12, 30, 0.35);
+  /*box-shadow: 0 8px 18px rgba(9, 12, 30, 0.35);*/
 }
 
 .btn:disabled {
@@ -135,15 +138,15 @@ textarea {
 }
 
 .btnGhost {
-  background: transparent;
-  color: var(--color-text-muted);
-  border-color: rgba(92, 108, 255, 0.35);
+  color: var(--color-dark);
+  border-color: var(--color-off-white);
+  background-color: var(--color-white);
 }
 
 .btnGhost:hover,
 .btnGhost:focus-visible {
-  color: var(--color-text);
-  background: rgba(92, 108, 255, 0.18);
+  color: var(--color-off-white);
+  background:  var(--color-dark);
 }
 
 ::selection {

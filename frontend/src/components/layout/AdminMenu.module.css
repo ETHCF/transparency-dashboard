@@ -9,10 +9,10 @@
   padding: 0.4rem 0.85rem;
   border-radius: var(--radius-md);
   border: 1px solid rgba(92, 108, 255, 0.3);
-  background: rgba(92, 108, 255, 0.12);
-  color: var(--color-text);
-  font-size: 0.9rem;
-  font-weight: 500;
+  background-color: var(--color-off-white);
+  color: var(--color-dark);
+  font-size: 0.95rem;
+  font-weight: 600;
   cursor: pointer;
   transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
 }
@@ -20,8 +20,10 @@
 .trigger:hover,
 .trigger:focus-visible {
   border-color: rgba(92, 108, 255, 0.6);
-  background: rgba(92, 108, 255, 0.22);
+  color: var(--color-off-white);
+  background: var(--color-dark);
   transform: translateY(-1px);
+  text-decoration: none;
 }
 
 .caret {
@@ -37,7 +39,8 @@
   min-width: 200px;
   padding: 0.4rem;
   border-radius: var(--radius-md);
-  background: var(--color-surface-elevated);
+  background: var(--color-white);
+  
   border: 1px solid rgba(92, 108, 255, 0.25);
   box-shadow: var(--shadow-md);
   z-index: 10;
@@ -47,7 +50,7 @@
 .item {
   padding: 0.5rem 0.6rem;
   border-radius: var(--radius-sm);
-  color: var(--color-text);
+  color: var(--color-dark);
   text-decoration: none;
   font-size: 0.9rem;
   transition: background 0.15s ease, color 0.15s ease;
@@ -55,5 +58,7 @@
 
 .item:hover,
 .item:focus-visible {
-  background: rgba(92, 108, 255, 0.18);
+  background: var(--color-dark);
+  color: var(--color-off-white);
+  text-decoration: none;
 }

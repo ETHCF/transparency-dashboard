@@ -4,7 +4,8 @@
   justify-content: space-between;
   padding: var(--spacing-16) var(--spacing-24);
   border-bottom: 1px solid var(--color-border);
-
+  background-color: var(--color-bg);
+  backdrop-filter: blur(12px);
   position: sticky;
   top: 0;
   z-index: 20;
@@ -38,7 +39,9 @@
 .navLink {
   padding: var(--spacing-8) var(--spacing-12);
   border-radius: var(--radius-sm);
-  color: var(--color-text-muted);
+  color: var(--color-dark);
+  /* background-color: var(--color-off-white); */
+  font-weight: 600;
   transition:
     color 0.2s ease,
     background 0.2s ease;
@@ -46,8 +49,9 @@
 
 .navLink:hover,
 .activeNavLink {
-  color: var(--color-text);
-  background: rgba(92, 108, 255, 0.15);
+  
+  /* color: var(--color-off-white);
+  background:var(--color-dark); */
 }
 
 .actions {
