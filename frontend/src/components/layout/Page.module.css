@@ -10,7 +10,7 @@
   gap: var(--spacing-16);
   padding: var(--spacing-20);
   border-radius: var(--radius-lg);
-  background: var(--color-surface);
+  background: #ffffff;
   border: 1px solid rgba(255, 255, 255, 0.05);
   box-shadow: var(--shadow-sm);
 }

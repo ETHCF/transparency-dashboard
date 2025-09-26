@@ -1,10 +1,10 @@
 :root {
-  --color-bg: #090b17;
+  --color-bg: #f1f5f9;
   --color-surface: #101226;
   --color-surface-elevated: #171a31;
   --color-border: #272b4a;
-  --color-text: #f5f6ff;
-  --color-text-muted: #a0a5c5;
+  --color-text: #64748b;
+  --color-text-muted: #64748b;
   --color-primary: #5c6cff;
   --color-success: #37d29d;
   --color-warning: #f0b429;
@@ -157,6 +157,10 @@ h5,
 h6 {
   margin: 0;
   font-weight: 600;
+}
+
+h2 {
+  color: #0f172a;
 }
 
 p {

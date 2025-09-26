@@ -7,7 +7,7 @@
 .table {
   width: 100%;
   border-collapse: collapse;
-  background: var(--color-surface);
+  background: #ffffff;
 }
 
 .headerCell {
@@ -17,7 +17,7 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--color-text-muted);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
 }
 
 .row {
@@ -30,7 +30,7 @@
 
 .cell {
   padding: var(--spacing-12) var(--spacing-16);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.05);
 }
 
 .numeric {
