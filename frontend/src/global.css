@@ -1,5 +1,5 @@
 :root {
-  --color-bg: #FFFFFF;
+  --color-bg: #F1F5F9;
   --color-surface: #101226;
   --color-surface-elevated: #171a31;
   --color-border: #272b4a;
@@ -11,7 +11,7 @@
   --color-primary: #5c6cff;
   --color-success: #37d29d;
   --color-warning: #f0b429;
-  --color-danger: #f25f5c;
+  --color-danger: #ff0400;
   --border-color-bright: #E2E8F0;
   --border-form: #CBD5E1;
   --input-placeholder: #94a3b8;
@@ -66,7 +66,7 @@ body {
 }
 
 a {
-  color: var(--color-primary);
+  color: var(--color-dark);
   text-decoration: none;
 }
 
@@ -119,19 +119,15 @@ textarea {
 }
 
 
- {
-  background: linear-gradient(135deg, rgba(92, 108, 255, 1), rgba(92, 108, 255, 0.8));
-  border-color: rgba(92, 108, 255, 0.9);
-}
-
 .btnDanger {
-  background: linear-gradient(135deg, rgba(242, 95, 92, 0.9), rgba(242, 95, 92, 0.7));
+  background-color: var(--color-danger);
   border-color: rgba(242, 95, 92, 0.75);
+  color: var(--color-off-white);
 }
 
 .btnDanger:hover,
 .btnDanger:focus-visible {
-  background: linear-gradient(135deg, rgba(242, 95, 92, 1), rgba(242, 95, 92, 0.82));
+  background-color: var(--color-danger);
   border-color: rgba(242, 95, 92, 0.9);
 }
 

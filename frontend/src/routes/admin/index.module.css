@@ -10,12 +10,7 @@
   gap: 0.75rem;
   padding: var(--spacing-20);
   border-radius: 4px;
-  background: linear-gradient(
-      135deg,
-      rgba(92, 108, 255, 0.08),
-      transparent 65%
-    ),
-    var(--color-surface-elevated);
+  background-color: var(--color-white);
   border: 1px solid rgba(92, 108, 255, 0.2);
   box-shadow: var(--shadow-sm);
   text-decoration: none;
@@ -29,21 +24,16 @@
 
 .actionCard:hover,
 .actionCard:focus-visible {
+  text-decoration: none;
   transform: translateY(-3px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--color-primary);
-  background: linear-gradient(
-      135deg,
-      rgba(92, 108, 255, 0.18),
-      transparent 60%
-    ),
-    var(--color-surface-elevated);
+  border-color: var(--color-dark);
 }
 
 .actionTitle {
   font-size: 1.05rem;
   font-weight: 600;
   letter-spacing: 0.01em;
+  color: var(--color-dark);
 }
 
 .actionDescription {
@@ -55,5 +45,6 @@
 
 .actionLink {
   font-weight: 600;
-  color: var(--color-primary);
+  text-decoration: underline;
+  color: var(--color-text-muted);
 }

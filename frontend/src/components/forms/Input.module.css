@@ -13,8 +13,7 @@
 
 .input:focus {
   outline: none;
-  border-color: rgba(92, 108, 255, 0.6);
-  background: rgba(92, 108, 255, 0.1);
+  border: double var(--border-form);
 }
 
 .inputError {

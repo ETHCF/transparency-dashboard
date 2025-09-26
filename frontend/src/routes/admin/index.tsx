@@ -46,7 +46,7 @@ const AdminDashboard = () => {
             <p className={styles.actionDescription}>
               Capture a new transaction with item, cost, and supporting details.
             </p>
-            <span className={styles.actionLink}>Add expense →</span>
+            <span className={styles.actionLink}>Add expense</span>
           </Link>
 
           <Link to="/admin/grants" className={styles.actionCard}>
@@ -54,7 +54,7 @@ const AdminDashboard = () => {
             <p className={styles.actionDescription}>
               Record a new grant agreement, recipient, and funding timeline.
             </p>
-            <span className={styles.actionLink}>Launch grant form →</span>
+            <span className={styles.actionLink}>Launch grant form</span>
           </Link>
 
           <Link to="/admin/wallets" className={styles.actionCard}>
@@ -62,7 +62,7 @@ const AdminDashboard = () => {
             <p className={styles.actionDescription}>
               Register an on-chain address to include in treasury reporting.
             </p>
-            <span className={styles.actionLink}>Register wallet →</span>
+            <span className={styles.actionLink}>Register wallet</span>
           </Link>
 
           <Link to="/admin/transfers" className={styles.actionCard}>
@@ -70,7 +70,7 @@ const AdminDashboard = () => {
             <p className={styles.actionDescription}>
               Give a friendly label to payer or payee addresses used in transfers.
             </p>
-            <span className={styles.actionLink}>Add transfer party →</span>
+            <span className={styles.actionLink}>Add transfer party</span>
           </Link>
         </div>
       </PageSection>
