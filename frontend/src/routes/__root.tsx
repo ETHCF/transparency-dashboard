@@ -55,7 +55,6 @@ const RootComponent = () => {
         header={
           <AppHeader
             organizationName={headerTitle}
-            subtitle="Financial Transparency"
             navItems={navItems}
             actions={actions}
           />
@@ -74,7 +73,6 @@ const RootErrorComponent = ({ error }: ErrorProps) => {
   const header = (
     <AppHeader
       organizationName={config.organizationName ?? "Transparency Dashboard"}
-      subtitle="Financial Transparency"
     />
   );
 

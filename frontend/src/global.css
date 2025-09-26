@@ -13,6 +13,9 @@
   --color-warning: #f0b429;
   --color-danger: #f25f5c;
   --border-color-bright: #E2E8F0;
+  --border-form: #CBD5E1;
+  --input-placeholder: #94a3b8;
+  --input-text: #0F172A;
   --font-family:
     "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
@@ -115,13 +118,8 @@ textarea {
   box-shadow: none;
 }
 
-.btnPrimary {
-  background: linear-gradient(135deg, rgba(92, 108, 255, 0.9), rgba(92, 108, 255, 0.65));
-  border-color: rgba(92, 108, 255, 0.7);
-}
 
-.btnPrimary:hover,
-.btnPrimary:focus-visible {
+ {
   background: linear-gradient(135deg, rgba(92, 108, 255, 1), rgba(92, 108, 255, 0.8));
   border-color: rgba(92, 108, 255, 0.9);
 }
@@ -137,12 +135,15 @@ textarea {
   border-color: rgba(242, 95, 92, 0.9);
 }
 
-.btnGhost {
+
+.btnGhost, .btnPrimary {
   color: var(--color-dark);
   border-color: var(--color-off-white);
   background-color: var(--color-white);
 }
 
+.btnPrimary:hover,
+.btnPrimary:focus-visible,
 .btnGhost:hover,
 .btnGhost:focus-visible {
   color: var(--color-off-white);
@@ -170,4 +171,8 @@ h2 {
 
 p {
   margin: 0;
+}
+
+.signMessageButton {
+  width: auto;
 }

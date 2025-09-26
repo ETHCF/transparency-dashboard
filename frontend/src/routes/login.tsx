@@ -63,7 +63,7 @@ const LoginPage = () => {
           type="button"
           disabled={!isConnected || loginMutation.isPending}
           onClick={() => loginMutation.mutate()}
-          className="btn btnPrimary"
+          className="btn btnPrimary signMessageButton"
         >
           {loginMutation.isPending ? "Signing in…" : "Sign message"}
         </button>

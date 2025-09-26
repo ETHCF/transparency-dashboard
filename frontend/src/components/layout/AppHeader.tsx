@@ -45,7 +45,6 @@ export const AppHeader = ({
     <header className={styles.header}>
       <div className={styles.brand}>
         <span className={styles.title}>{organizationName}</span>
-        {subtitle ? <span className={styles.subtitle}>{subtitle}</span> : null}
       </div>
       {navItems && navItems.length > 0 ? (
         <nav className={styles.nav}>
