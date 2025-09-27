@@ -8,25 +8,41 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  padding: var(--spacing-20);
-  border-radius: 4px;
-  background-color: var(--color-white);
-  border: 1px solid rgba(92, 108, 255, 0.2);
-  box-shadow: var(--shadow-sm);
+  padding: 1.5rem;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #FFFFFF 0%, #F9FAFB 100%);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   text-decoration: none;
   color: var(--color-text);
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    border-color 0.2s ease,
-    background 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.actionCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--md-sys-color-primary), var(--md-sys-color-secondary));
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .actionCard:hover,
 .actionCard:focus-visible {
   text-decoration: none;
-  transform: translateY(-3px);
-  border-color: var(--color-dark);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(99, 102, 241, 0.15);
+  border-color: var(--md-sys-color-primary);
+  background: linear-gradient(135deg, #FFFFFF 0%, #EEF2FF 100%);
+}
+
+.actionCard:hover::before {
+  transform: translateX(0);
 }
 
 .actionTitle {
@@ -38,7 +54,7 @@
 
 .actionDescription {
   margin: 0;
-  color: var(--color-text-muted);
+  color: var(--md-sys-color-on-surface);
   flex: 1;
   line-height: 1.5;
 }
@@ -46,5 +62,5 @@
 .actionLink {
   font-weight: 600;
   text-decoration: underline;
-  color: var(--color-text-muted);
+  color: var(--md-sys-color-on-surface);
 }

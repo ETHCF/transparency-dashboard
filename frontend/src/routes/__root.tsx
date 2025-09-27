@@ -1,4 +1,4 @@
-import { Outlet, useLoaderData } from "@tanstack/react-router";
+import { Outlet, useLoaderData, Link } from "@tanstack/react-router";
 import { createRootRouteWithContext } from "@tanstack/react-router";
 
 import { AppFooter } from "@/components/layout/AppFooter";
@@ -39,9 +39,20 @@ const RootComponent = () => {
 
   const hasAdminAccess = useAuthStore((state) => Boolean(state.token));
 
-  const navItems = [{ label: "Dashboard", to: "/", end: true }];
+  const navItems = [
+    { label: "Dashboard", to: "/", end: true },
+    { label: "Transfers", to: "/transfers" },
+    { label: "Grants", to: "/grant" },
+    { label: "Expenses", to: "/expense" },
+  ];
 
-  const actions = hasAdminAccess ? <AdminMenu /> : undefined;
+  const actions = hasAdminAccess ? (
+    <AdminMenu />
+  ) : (
+    <Link to="/login" className="btn btn-primary">
+      Sign In
+    </Link>
+  );
 
   const headerTitle =
     treasury.organizationName ||

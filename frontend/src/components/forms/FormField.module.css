@@ -16,12 +16,12 @@
 }
 
 .optional {
-  color: var(--color-text-muted);
+  color: var(--md-sys-color-on-surface);
   font-size: 0.85rem;
 }
 
 .hint {
-  color: var(--color-text-muted);
+  color: var(--md-sys-color-on-surface);
   font-size: 0.85rem;
 }
 

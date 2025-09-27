@@ -8,9 +8,9 @@
   gap: 0.35rem;
   padding: 0.4rem 0.85rem;
   border-radius: var(--radius-md);
-  border: 1px solid rgba(92, 108, 255, 0.3);
-  background-color: var(--color-white);
-  color: var(--color-dark);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  background-color: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
@@ -19,9 +19,9 @@
 
 .trigger:hover,
 .trigger:focus-visible {
-  border-color: rgba(92, 108, 255, 0.6);
-  color: var(--color-off-white);
-  background: var(--color-dark);
+  border-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  background: var(--md-sys-color-primary);
   transform: translateY(-1px);
   text-decoration: none;
 }
@@ -39,9 +39,9 @@
   min-width: 200px;
   padding: 0.4rem;
   border-radius: var(--radius-md);
-  background: var(--color-white);
-  
-  border: 1px solid rgba(92, 108, 255, 0.25);
+  background: var(--md-sys-color-surface);
+
+  border: 1px solid var(--md-sys-color-outline-variant);
   box-shadow: var(--shadow-md);
   z-index: 10;
   gap: 0.25rem;
@@ -50,15 +50,16 @@
 .item {
   padding: 0.5rem 0.6rem;
   border-radius: var(--radius-sm);
-  color: var(--color-dark);
+  color: var(--md-sys-color-on-surface);
   text-decoration: none;
   font-size: 0.9rem;
+  font-weight: 500;
   transition: background 0.15s ease, color 0.15s ease;
 }
 
 .item:hover,
 .item:focus-visible {
-  background: var(--color-dark);
-  color: var(--color-off-white);
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
   text-decoration: none;
 }

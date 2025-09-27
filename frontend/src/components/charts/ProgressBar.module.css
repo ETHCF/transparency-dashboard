@@ -22,6 +22,6 @@
 .label {
   display: flex;
   justify-content: space-between;
-  color: var(--color-text-muted);
+  color: var(--md-sys-color-on-surface);
   font-size: 0.85rem;
 }

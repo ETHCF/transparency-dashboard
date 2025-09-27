@@ -38,7 +38,7 @@
 .close {
   background: none;
   border: none;
-  color: var(--color-text-muted);
+  color: var(--md-sys-color-on-surface);
   cursor: pointer;
   font-size: 1.2rem;
 }

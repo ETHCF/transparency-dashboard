@@ -12,6 +12,26 @@ export const Page = ({ children, className }: PageProps): JSX.Element => (
   <div className={clsx(styles.page, className)}>{children}</div>
 );
 
+export interface PageHeaderProps {
+  title: string;
+  description?: string;
+  actions?: ReactNode;
+}
+
+export const PageHeader = ({
+  title,
+  description,
+  actions,
+}: PageHeaderProps): JSX.Element => (
+  <header className={styles.pageHeader}>
+    <div className={styles.pageHeaderContent}>
+      <h1 className={styles.pageTitle}>{title}</h1>
+      {description && <p className={styles.pageDescription}>{description}</p>}
+    </div>
+    {actions && <div className={styles.pageActions}>{actions}</div>}
+  </header>
+);
+
 export interface PageSectionProps {
   title?: string;
   description?: string;

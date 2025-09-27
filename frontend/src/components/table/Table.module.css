@@ -7,7 +7,7 @@
 .table {
   width: 100%;
   border-collapse: collapse;
-  background: #ffffff;
+  background: var(--md-sys-color-surface);
 }
 
 .headerCell {
@@ -16,18 +16,28 @@
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--color-text-muted);
-  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+  color: var(--md-sys-color-on-surface);
+  font-weight: 600;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
 }
 
 .row {
   transition: background 0.15s ease;
 }
 
+.row[role="button"] {
+  cursor: pointer;
+}
+
+.row[role="button"]:hover {
+  background: #F6F9FC;
+}
+
 .cell {
   padding: var(--spacing-12) var(--spacing-16);
-  border-bottom: 1px solid rgba(15, 23, 42, 0.05);
-  color: var(--color-dark);
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+  color: var(--md-sys-color-on-surface);
+  font-weight: 500;
 }
 
 .numeric {
@@ -41,5 +51,5 @@
 .empty {
   padding: var(--spacing-24);
   text-align: center;
-  color: var(--color-text-muted);
+  color: var(--md-sys-color-on-surface);
 }

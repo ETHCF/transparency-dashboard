@@ -13,6 +13,10 @@ import { useTreasuryQuery } from "@/services/treasury";
 import { useTransfersQuery } from "@/services/transfers";
 import type { TransferRecord } from "@/types/domain";
 import { formatDateTime } from "@/utils/format";
+import { generateMockTransfers } from "@/utils/mockData";
+import { TransferEditModal } from "@/components/transfers/TransferEditModal";
+import { useAuthStore } from "@/stores/auth";
+import { exportTransfers, generatePDFReport } from "@/utils/export";
 
 const PAGE_SIZE = 25;
 
@@ -20,8 +24,12 @@ export const Route = createFileRoute("/transfers")({
   component: TransfersPage,
 });
 
-function TransfersPage(): JSX.Element {
+function TransfersPage() {
   const [pagination, setPagination] = useState({ limit: PAGE_SIZE, offset: 0 });
+  const [selectedTransfer, setSelectedTransfer] = useState<TransferRecord | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const hasAdminAccess = useAuthStore((state) => Boolean(state.token));
 
   const treasuryQuery = useTreasuryQuery();
   const transfersQuery = useTransfersQuery(pagination);
@@ -127,10 +135,15 @@ function TransfersPage(): JSX.Element {
     [baseColumns],
   );
 
-  const data = transfersQuery.data ?? [];
+  const isDevMode = import.meta.env.VITE_DEV_MODE === 'true';
+  const mockTransfers = useMemo(() => generateMockTransfers(150), []);
+  const apiData = transfersQuery.data ?? [];
+  const data = isDevMode && apiData.length === 0 ? mockTransfers.slice(pagination.offset, pagination.offset + pagination.limit) : apiData;
   const isInitialLoading = transfersQuery.isPending || treasuryQuery.isPending;
   const hasError = transfersQuery.isError;
-  const reachedEnd = data.length < pagination.limit;
+  const reachedEnd = isDevMode && apiData.length === 0
+    ? pagination.offset + pagination.limit >= mockTransfers.length
+    : data.length < pagination.limit;
 
   const handlePrev = () => {
     setPagination((current) => ({
@@ -149,6 +162,26 @@ function TransfersPage(): JSX.Element {
     }));
   };
 
+  const handleTransferClick = (transfer: TransferRecord) => {
+    if (hasAdminAccess) {
+      setSelectedTransfer(transfer);
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleSaveMetadata = (metadata: any) => {
+    // TODO: Implement API call to save metadata
+    // In a real implementation, this would call an API endpoint to save the metadata
+  };
+
+  const handleExportCSV = () => {
+    exportTransfers(data, 'csv');
+  };
+
+  const handleExportJSON = () => {
+    exportTransfers(data, 'json');
+  };
+
   return (
     <Page>
       <PageSection
@@ -156,8 +189,28 @@ function TransfersPage(): JSX.Element {
         description="Full ledger of treasury movements"
         actions={
           <div
-            style={{ display: "flex", gap: "var(--spacing-8)", flexWrap: "wrap" }}
+            style={{ display: "flex", gap: "var(--spacing-8)", flexWrap: "wrap", alignItems: "center" }}
           >
+            <div style={{ display: "flex", gap: "var(--spacing-8)" }}>
+              <button
+                type="button"
+                className="btn btn-outlined"
+                onClick={handleExportCSV}
+                disabled={!data.length}
+                style={{ fontSize: '13px' }}
+              >
+                📊 Export CSV
+              </button>
+              <button
+                type="button"
+                className="btn btn-outlined"
+                onClick={handleExportJSON}
+                disabled={!data.length}
+                style={{ fontSize: '13px' }}
+              >
+                📄 Export JSON
+              </button>
+            </div>
             <Link to="/" className="btn btnGhost">
               Back to dashboard
             </Link>
@@ -195,9 +248,22 @@ function TransfersPage(): JSX.Element {
             data={data}
             getRowId={(transfer) => transfer.txHash}
             emptyState={<EmptyState title="No transfers found" />}
+            onRowClick={hasAdminAccess ? handleTransferClick : undefined}
           />
         )}
       </PageSection>
+
+      {selectedTransfer && (
+        <TransferEditModal
+          transfer={selectedTransfer}
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setSelectedTransfer(null);
+          }}
+          onSave={handleSaveMetadata}
+        />
+      )}
     </Page>
   );
 }

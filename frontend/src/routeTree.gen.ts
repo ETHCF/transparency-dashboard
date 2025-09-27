@@ -13,8 +13,12 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TransfersRouteImport } from './routes/transfers'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as GrantRouteImport } from './routes/grant'
+import { Route as ExpenseRouteImport } from './routes/expense'
 import { Route as R404RouteImport } from './routes/$404'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as GrantIndexRouteImport } from './routes/grant/index'
+import { Route as ExpenseIndexRouteImport } from './routes/expense/index'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as TransferTransferIdRouteImport } from './routes/transfer/$transferId'
 import { Route as GrantGrantIdRouteImport } from './routes/grant/$grantId'
@@ -55,6 +59,16 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GrantRoute = GrantRouteImport.update({
+  id: '/grant',
+  path: '/grant',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExpenseRoute = ExpenseRouteImport.update({
+  id: '/expense',
+  path: '/expense',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const R404Route = R404RouteImport.update({
   id: '/$404',
   path: '/$404',
@@ -64,6 +78,16 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const GrantIndexRoute = GrantIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => GrantRoute,
+} as any)
+const ExpenseIndexRoute = ExpenseIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => ExpenseRoute,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
@@ -76,14 +100,14 @@ const TransferTransferIdRoute = TransferTransferIdRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const GrantGrantIdRoute = GrantGrantIdRouteImport.update({
-  id: '/grant/$grantId',
-  path: '/grant/$grantId',
-  getParentRoute: () => rootRouteImport,
+  id: '/$grantId',
+  path: '/$grantId',
+  getParentRoute: () => GrantRoute,
 } as any)
 const ExpenseExpenseIdRoute = ExpenseExpenseIdRouteImport.update({
-  id: '/expense/$expenseId',
-  path: '/expense/$expenseId',
-  getParentRoute: () => rootRouteImport,
+  id: '/$expenseId',
+  path: '/$expenseId',
+  getParentRoute: () => ExpenseRoute,
 } as any)
 const AdminWalletsRoute = AdminWalletsRouteImport.update({
   id: '/wallets',
@@ -181,6 +205,8 @@ const AdminGrantsGrantIdDisbursementsRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/$404': typeof R404Route
+  '/expense': typeof ExpenseRouteWithChildren
+  '/grant': typeof GrantRouteWithChildren
   '/login': typeof LoginRoute
   '/transfers': typeof TransfersRoute
   '/admin': typeof Admin_layoutRoute
@@ -197,6 +223,8 @@ export interface FileRoutesByFullPath {
   '/grant/$grantId': typeof GrantGrantIdRoute
   '/transfer/$transferId': typeof TransferTransferIdRoute
   '/admin/': typeof AdminIndexRoute
+  '/expense/': typeof ExpenseIndexRoute
+  '/grant/': typeof GrantIndexRoute
   '/admin/expenses/$expenseId': typeof AdminExpensesExpenseIdRoute
   '/admin/grants/$grantId': typeof AdminGrantsGrantIdRouteWithChildren
   '/admin/expenses/': typeof AdminExpensesIndexRoute
@@ -222,6 +250,8 @@ export interface FileRoutesByTo {
   '/expense/$expenseId': typeof ExpenseExpenseIdRoute
   '/grant/$grantId': typeof GrantGrantIdRoute
   '/transfer/$transferId': typeof TransferTransferIdRoute
+  '/expense': typeof ExpenseIndexRoute
+  '/grant': typeof GrantIndexRoute
   '/admin/expenses/$expenseId': typeof AdminExpensesExpenseIdRoute
   '/admin/expenses': typeof AdminExpensesIndexRoute
   '/admin/grants': typeof AdminGrantsIndexRoute
@@ -234,6 +264,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/$404': typeof R404Route
+  '/expense': typeof ExpenseRouteWithChildren
+  '/grant': typeof GrantRouteWithChildren
   '/login': typeof LoginRoute
   '/transfers': typeof TransfersRoute
   '/admin': typeof AdminRouteWithChildren
@@ -251,6 +283,8 @@ export interface FileRoutesById {
   '/grant/$grantId': typeof GrantGrantIdRoute
   '/transfer/$transferId': typeof TransferTransferIdRoute
   '/admin/': typeof AdminIndexRoute
+  '/expense/': typeof ExpenseIndexRoute
+  '/grant/': typeof GrantIndexRoute
   '/admin/expenses/$expenseId': typeof AdminExpensesExpenseIdRoute
   '/admin/grants/$grantId': typeof AdminGrantsGrantIdRouteWithChildren
   '/admin/expenses/': typeof AdminExpensesIndexRoute
@@ -265,6 +299,8 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/$404'
+    | '/expense'
+    | '/grant'
     | '/login'
     | '/transfers'
     | '/admin'
@@ -281,6 +317,8 @@ export interface FileRouteTypes {
     | '/grant/$grantId'
     | '/transfer/$transferId'
     | '/admin/'
+    | '/expense/'
+    | '/grant/'
     | '/admin/expenses/$expenseId'
     | '/admin/grants/$grantId'
     | '/admin/expenses/'
@@ -306,6 +344,8 @@ export interface FileRouteTypes {
     | '/expense/$expenseId'
     | '/grant/$grantId'
     | '/transfer/$transferId'
+    | '/expense'
+    | '/grant'
     | '/admin/expenses/$expenseId'
     | '/admin/expenses'
     | '/admin/grants'
@@ -317,6 +357,8 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/$404'
+    | '/expense'
+    | '/grant'
     | '/login'
     | '/transfers'
     | '/admin'
@@ -334,6 +376,8 @@ export interface FileRouteTypes {
     | '/grant/$grantId'
     | '/transfer/$transferId'
     | '/admin/'
+    | '/expense/'
+    | '/grant/'
     | '/admin/expenses/$expenseId'
     | '/admin/grants/$grantId'
     | '/admin/expenses/'
@@ -347,11 +391,11 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   R404Route: typeof R404Route
+  ExpenseRoute: typeof ExpenseRouteWithChildren
+  GrantRoute: typeof GrantRouteWithChildren
   LoginRoute: typeof LoginRoute
   TransfersRoute: typeof TransfersRoute
   AdminRoute: typeof AdminRouteWithChildren
-  ExpenseExpenseIdRoute: typeof ExpenseExpenseIdRoute
-  GrantGrantIdRoute: typeof GrantGrantIdRoute
   TransferTransferIdRoute: typeof TransferTransferIdRoute
 }
 
@@ -378,6 +422,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/grant': {
+      id: '/grant'
+      path: '/grant'
+      fullPath: '/grant'
+      preLoaderRoute: typeof GrantRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/expense': {
+      id: '/expense'
+      path: '/expense'
+      fullPath: '/expense'
+      preLoaderRoute: typeof ExpenseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/$404': {
       id: '/$404'
       path: '/$404'
@@ -391,6 +449,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/grant/': {
+      id: '/grant/'
+      path: '/'
+      fullPath: '/grant/'
+      preLoaderRoute: typeof GrantIndexRouteImport
+      parentRoute: typeof GrantRoute
+    }
+    '/expense/': {
+      id: '/expense/'
+      path: '/'
+      fullPath: '/expense/'
+      preLoaderRoute: typeof ExpenseIndexRouteImport
+      parentRoute: typeof ExpenseRoute
     }
     '/admin/': {
       id: '/admin/'
@@ -408,17 +480,17 @@ declare module '@tanstack/react-router' {
     }
     '/grant/$grantId': {
       id: '/grant/$grantId'
-      path: '/grant/$grantId'
+      path: '/$grantId'
       fullPath: '/grant/$grantId'
       preLoaderRoute: typeof GrantGrantIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof GrantRoute
     }
     '/expense/$expenseId': {
       id: '/expense/$expenseId'
-      path: '/expense/$expenseId'
+      path: '/$expenseId'
       fullPath: '/expense/$expenseId'
       preLoaderRoute: typeof ExpenseExpenseIdRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof ExpenseRoute
     }
     '/admin/wallets': {
       id: '/admin/wallets'
@@ -549,6 +621,31 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface ExpenseRouteChildren {
+  ExpenseExpenseIdRoute: typeof ExpenseExpenseIdRoute
+  ExpenseIndexRoute: typeof ExpenseIndexRoute
+}
+
+const ExpenseRouteChildren: ExpenseRouteChildren = {
+  ExpenseExpenseIdRoute: ExpenseExpenseIdRoute,
+  ExpenseIndexRoute: ExpenseIndexRoute,
+}
+
+const ExpenseRouteWithChildren =
+  ExpenseRoute._addFileChildren(ExpenseRouteChildren)
+
+interface GrantRouteChildren {
+  GrantGrantIdRoute: typeof GrantGrantIdRoute
+  GrantIndexRoute: typeof GrantIndexRoute
+}
+
+const GrantRouteChildren: GrantRouteChildren = {
+  GrantGrantIdRoute: GrantGrantIdRoute,
+  GrantIndexRoute: GrantIndexRoute,
+}
+
+const GrantRouteWithChildren = GrantRoute._addFileChildren(GrantRouteChildren)
+
 interface AdminExpensesRouteChildren {
   AdminExpensesExpenseIdRoute: typeof AdminExpensesExpenseIdRoute
   AdminExpensesIndexRoute: typeof AdminExpensesIndexRoute
@@ -627,11 +724,11 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   R404Route: R404Route,
+  ExpenseRoute: ExpenseRouteWithChildren,
+  GrantRoute: GrantRouteWithChildren,
   LoginRoute: LoginRoute,
   TransfersRoute: TransfersRoute,
   AdminRoute: AdminRouteWithChildren,
-  ExpenseExpenseIdRoute: ExpenseExpenseIdRoute,
-  GrantGrantIdRoute: GrantGrantIdRoute,
   TransferTransferIdRoute: TransferTransferIdRoute,
 }
 export const routeTree = rootRouteImport

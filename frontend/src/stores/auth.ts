@@ -16,12 +16,27 @@ interface AuthState {
   setToken: (token: string) => void;
 }
 
+// Check if we're in dev mode
+const isDevMode = import.meta.env.VITE_DEV_MODE === 'true';
+
+// Dev mode default state
+const devModeDefaults = isDevMode ? {
+  token: 'dev-token',
+  admin: {
+    address: '0x554c5aF96E9e3c05AEC01ce18221d0DD25975aB4',
+    name: 'Dev User (zak.eth)'
+  } as AdminIdentity,
+  isAuthenticated: true
+} : {
+  token: undefined,
+  admin: undefined,
+  isAuthenticated: false
+};
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
-      token: undefined,
-      admin: undefined,
-      isAuthenticated: false,
+      ...devModeDefaults,
       login: ({ token, admin }) => set({ token, admin, isAuthenticated: true }),
       logout: () =>
         set({ token: undefined, admin: undefined, isAuthenticated: false }),
@@ -30,6 +45,7 @@ export const useAuthStore = create<AuthState>()(
     {
       name: "ethcf-dashboard-auth",
       partialize: (state) => ({ token: state.token, admin: state.admin }),
+      skipHydration: isDevMode, // In dev mode, skip hydration to use defaults
     },
   ),
 );

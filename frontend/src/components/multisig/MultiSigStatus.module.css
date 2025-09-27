@@ -1,0 +1,232 @@
+.container {
+  background: var(--md-sys-color-surface);
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--md-sys-color-outline);
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--md-sys-color-on-surface);
+  margin: 0;
+}
+
+.status {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.status.pending {
+  background: var(--md-sys-color-primary-container);
+  color: var(--md-sys-color-primary);
+}
+
+.status.executed {
+  background: #E3F5ED;
+  color: #1A5E3A;
+}
+
+.status.cancelled {
+  background: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-error);
+}
+
+.info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  color: var(--color-text-muted);
+}
+
+.value {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface);
+  font-family: 'Monaco', 'Courier New', monospace;
+}
+
+.progressContainer {
+  margin-bottom: 24px;
+}
+
+.progressBar {
+  height: 8px;
+  background: var(--md-sys-color-outline);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progressFill {
+  height: 100%;
+  transition: width 0.3s ease;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.progressFill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.signers {
+  margin-top: 20px;
+}
+
+.signersTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--md-sys-color-on-surface);
+  margin: 0 0 12px 0;
+}
+
+.signersList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.signer {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background: var(--md-sys-color-surface-variant);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.signer:hover {
+  background: var(--md-sys-color-primary-container);
+  transform: translateX(4px);
+}
+
+.signerInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.signerStatus {
+  font-size: 20px;
+  opacity: 0.3;
+  transition: opacity 0.2s ease;
+}
+
+.signerStatus.signed {
+  opacity: 1;
+}
+
+.signerDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.signerName {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--md-sys-color-on-surface);
+}
+
+.signerTime {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--md-sys-color-outline);
+}
+
+.signBtn,
+.executeBtn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  font-family: inherit;
+}
+
+.signBtn {
+  background: var(--md-sys-color-primary);
+  color: white;
+}
+
+.signBtn:hover {
+  background: #5269D3;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(98, 126, 234, 0.2);
+}
+
+.executeBtn {
+  background: var(--md-sys-color-secondary);
+  color: white;
+}
+
+.executeBtn:hover {
+  background: #3DAA76;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(72, 204, 136, 0.2);
+}
+
+.loading {
+  padding: 40px;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 14px;
+}

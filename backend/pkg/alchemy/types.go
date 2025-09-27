@@ -40,7 +40,7 @@ func (o *GetTransfersOptions) ToParams(maxCount int64, pageKey *string) GetAsset
 		FromBlock:        "0x" + strconv.FormatUint(o.FromBlock, 16),
 		FromAddress:      o.FromAddress,
 		ToAddress:        o.ToAddress,
-		Category:         []string{"erc20"},
+		Category:         []string{"external", "internal", "erc20", "erc721", "erc1155"},
 		ExcludeZeroValue: true,
 		WithMetadata:     true,
 		Order:            "desc",
@@ -112,14 +112,28 @@ type TokenTransferResult struct {
 func (ttr TokenTransferResult) ToTokenTransfers() ([]TokenTransfer, error) {
 	out := []TokenTransfer{}
 	for _, tr := range ttr.Transfers {
-		// UniqueID is in the format: "<txHash>:log:<logIndex>"
-		idParts := strings.Split(tr.UniqueID, ":")
-		if len(idParts) != 3 {
-			return nil, errors.Errorf("invalid unique ID format: %s", tr.UniqueID)
+		// UniqueID can be:
+		// - For ERC20/ERC721/ERC1155: "<txHash>:log:<logIndex>"
+		// - For ETH transfers: "<txHash>:external" or "<txHash>:internal"
+		if tr.UniqueID == "" {
+			return nil, errors.New("empty unique ID found in transfer")
 		}
-		logIndex, err := strconv.Atoi(idParts[2])
-		if err != nil {
-			return nil, errors.Wrapf(err, "invalid log index in unique ID: %s", tr.UniqueID)
+
+		idParts := strings.Split(tr.UniqueID, ":")
+		logIndex := 0
+
+		if len(idParts) == 3 && idParts[1] == "log" {
+			// ERC20/ERC721/ERC1155 format
+			var err error
+			logIndex, err = strconv.Atoi(idParts[2])
+			if err != nil {
+				return nil, errors.Wrapf(err, "invalid log index in unique ID: %s", tr.UniqueID)
+			}
+		} else if len(idParts) >= 2 && (idParts[1] == "external" || idParts[1] == "internal") {
+			// ETH transfer format - sometimes can have additional parts
+			logIndex = 0 // ETH transfers don't have log indices
+		} else {
+			return nil, errors.Errorf("invalid unique ID format: %s (parts: %d)", tr.UniqueID, len(idParts))
 		}
 		transfer := TokenTransfer{
 			TxHash:      tr.Hash,
@@ -138,9 +152,15 @@ func (ttr TokenTransferResult) ToTokenTransfers() ([]TokenTransfer, error) {
 		if err != nil {
 			return nil, err
 		}
-		amount, ok := big.NewInt(0).SetString(tr.RawContract.Value[2:], 16)
-		if !ok {
-			return nil, errors.Errorf("failed to parse token transfer amount: %s", tr.RawContract.Value)
+
+		// Parse amount - handle empty or invalid values
+		amount := big.NewInt(0)
+		if tr.RawContract.Value != "" && len(tr.RawContract.Value) > 2 {
+			var ok bool
+			amount, ok = big.NewInt(0).SetString(tr.RawContract.Value[2:], 16)
+			if !ok {
+				return nil, errors.Errorf("failed to parse token transfer amount: %s", tr.RawContract.Value)
+			}
 		}
 		transfer.Block = blockNum
 		transfer.Amount = amount

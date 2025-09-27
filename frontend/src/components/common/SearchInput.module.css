@@ -10,7 +10,7 @@
   top: 50%;
   left: var(--spacing-12);
   transform: translateY(-50%);
-  color: var(--color-text-muted);
+  color: var(--md-sys-color-on-surface);
 }
 
 .input {
@@ -39,6 +39,6 @@
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: var(--color-text-muted);
+  color: var(--md-sys-color-on-surface);
   cursor: pointer;
 }

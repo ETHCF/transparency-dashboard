@@ -2,6 +2,7 @@ package auth
 
 import (
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -34,6 +35,18 @@ func NewMiddleware(conf *config.Config, verifier JWTManager) (Middleware, error)
 }
 
 func (m middleware) Handle(c *gin.Context) {
+	// Dev mode bypass - skip authentication
+	if os.Getenv("DEV_MODE") == "true" {
+		// Set a default dev user
+		devUser := os.Getenv("DEV_USER")
+		if devUser == "" {
+			devUser = "0x554c5aF96E9e3c05AEC01ce18221d0DD25975aB4" // Default to zak.eth
+		}
+		c.Set(UserIDKey, devUser)
+		c.Next()
+		return
+	}
+
 	token, err := m.verifier.ValidateToken(c)
 	if err != nil {
 		if strings.Contains(err.Error(), "has expired at") {

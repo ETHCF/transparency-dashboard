@@ -1,29 +1,42 @@
 .card {
   display: flex;
   flex-direction: column;
-  padding: var(--spacing-20);
-  gap: var(--spacing-12);
-  border-radius: 4px;
+  padding: 20px;
+  gap: 8px;
+  border-radius: 8px;
   background: #FFFFFF;
-  border: 1px solid #E2E8F0;
-  /* box-shadow: var(--shadow-sm); */
-  min-height: 140px;
+  border: 1px solid #E3E8EE;
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.04);
+  min-height: 120px;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.card:hover {
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.04), 0 5px 10px rgba(0,0,0,0.04);
+  transform: translateY(-1px);
 }
 
 .label {
-  font-size: 0.85rem;
-  color: var(--color-text-muted);
+  font-size: 12px;
+  color: #8898AA;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.025em;
+  font-weight: 600;
 }
 
 .value {
-  font-size: 2rem;
+  font-size: 24px;
   font-weight: 600;
-  color: var(--color-dark);
+  color: #0A2540;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
 .caption {
-  font-size: 0.9rem;
-  color: var(--color-dark);
+  font-size: 13px;
+  color: #697386;
+  font-weight: 400;
 }
