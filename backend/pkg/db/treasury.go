@@ -69,6 +69,11 @@ func (t *treasury) GetTreasuryResponse(ctx context.Context) (*types.TreasuryResp
 		return nil, errors.Wrap(err, "failed to get organization name")
 	}
 
+	totalFundsRaised, err := t.settingDB.GetTotalFundsRaised(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get total funds raised")
+	}
+
 	return &types.TreasuryResponse{
 		OrganizationName: orgName,
 		Assets:           assets,
@@ -76,6 +81,7 @@ func (t *treasury) GetTreasuryResponse(ctx context.Context) (*types.TreasuryResp
 		Wallets:          wallets,
 		TotalValueUsd:    totalValueUsd,
 		TotalValueEth:    totalValueEth,
+		TotalFundsRaised: totalFundsRaised,
 		LastUpdated:      time.Now(),
 	}, nil
 }

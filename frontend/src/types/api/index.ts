@@ -46,6 +46,7 @@ export interface TreasuryResponseDto {
   wallets?: TreasuryWalletDto[] | null;
   totalValueUsd?: number | string | null;
   totalValueEth?: string | number | null;
+  totalFundsRaised?: number | string | null;
   lastUpdated?: string | null;
 }
 

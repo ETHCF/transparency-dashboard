@@ -8,6 +8,7 @@ import (
 	"crypto/x509"
 	"database/sql"
 	"encoding/pem"
+	"fmt"
 
 	"github.com/numbergroup/errors"
 	"github.com/jmoiron/sqlx"
@@ -20,6 +21,8 @@ import (
 type SettingsDB interface {
 	GetOrganizationName(ctx context.Context) (string, error)
 	SetOrganizationName(ctx context.Context, name string) error
+	GetTotalFundsRaised(ctx context.Context) (float64, error)
+	SetTotalFundsRaised(ctx context.Context, amount float64) error
 	LoadJWTKey(ctx context.Context) (*ecdsa.PrivateKey, error)
 }
 
@@ -47,6 +50,27 @@ func (sb *settingsDB) GetOrganizationName(ctx context.Context) (string, error) {
 
 func (sb *settingsDB) SetOrganizationName(ctx context.Context, name string) error {
 	return sb.Set(ctx, constants.SettingOrgName, name)
+}
+
+func (sb *settingsDB) GetTotalFundsRaised(ctx context.Context) (float64, error) {
+	value, err := sb.Get(ctx, constants.SettingTotalFundsRaised)
+	if errors.Is(err, sql.ErrNoRows) {
+		return 0, nil
+	}
+	if err != nil {
+		return 0, err
+	}
+
+	var amount float64
+	_, err = fmt.Sscanf(value, "%f", &amount)
+	if err != nil {
+		return 0, errors.Wrap(err, "failed to parse total_funds_raised value")
+	}
+	return amount, nil
+}
+
+func (sb *settingsDB) SetTotalFundsRaised(ctx context.Context, amount float64) error {
+	return sb.Set(ctx, constants.SettingTotalFundsRaised, fmt.Sprintf("%f", amount))
 }
 
 func (sb *settingsDB) Get(ctx context.Context, key string) (string, error) {

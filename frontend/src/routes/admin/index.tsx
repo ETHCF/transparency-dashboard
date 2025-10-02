@@ -81,6 +81,10 @@ const AdminDashboard = () => {
       >
         <PageGrid columns="repeat(auto-fit, minmax(200px, 1fr))">
           <StatCard
+            label="Total Funds Raised"
+            value={formatCurrency(treasury.totalFundsRaised)}
+          />
+          <StatCard
             label="Total USD"
             value={formatCurrency(treasury.totalValueUsd)}
           />
