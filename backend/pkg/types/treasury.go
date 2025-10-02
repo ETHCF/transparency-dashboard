@@ -33,5 +33,6 @@ type TreasuryResponse struct {
 	Wallets          []Wallet        `json:"wallets"`
 	TotalValueUsd    float64         `json:"totalValueUsd"`
 	TotalValueEth    string          `json:"totalValueEth"` // High precision decimal as string
+	TotalFundsRaised float64         `json:"totalFundsRaised"`
 	LastUpdated      time.Time       `json:"lastUpdated"`
 }

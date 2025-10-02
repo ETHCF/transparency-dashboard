@@ -27,6 +27,7 @@ const fallbackTreasury: TreasuryOverview = {
   organizationName: "",
   totalValueUsd: 0,
   totalValueEth: 0,
+  totalFundsRaised: 0,
   lastUpdated: new Date(0),
   assets: [],
   wallets: [],

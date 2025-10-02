@@ -301,6 +301,10 @@ const DashboardPage = () => {
       >
         <PageGrid columns="repeat(auto-fit, minmax(220px, 1fr))">
           <StatCard
+            label="Total Funds Raised"
+            value={formatCurrency(treasury.totalFundsRaised)}
+          />
+          <StatCard
             label="Total Value (USD)"
             value={formatCurrency(treasury.totalValueUsd)}
           />
@@ -308,7 +312,6 @@ const DashboardPage = () => {
             label="Total Value (ETH)"
             value={`${treasury.totalValueEth?.toLocaleString?.() ?? "0"} ETH`}
           />
-          <StatCard label="Wallets" value={treasury.wallets?.length ?? 0} />
           <div style={{ position: 'relative' }}>
             <StatCard
               label="Monthly Burn Rate"
