@@ -86,6 +86,9 @@ jobs:
       run: 'gcloud components install kubectl'
     - name: 'Get cluster credentials'
       run: 'gcloud container clusters get-credentials ${{ secrets.CLUSTER_NAME }} --region ${{ secrets.REGION }}'
+    - name: 'Install helm deps'
+      working-directory: ./helm
+      run: helm dependency build
     - name: 'Deploy'
       run: |
         helm upgrade --install ${{ vars.SERVICE_NAME }} ./helm  --values ops/ethcf.yaml \
