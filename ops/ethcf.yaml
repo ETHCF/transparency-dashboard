@@ -1,0 +1,71 @@
+
+namespace: default
+
+backend:
+  tracker:
+    resources:
+      limits:
+        cpu: 200m
+        memory: 256Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+  api:
+    command: api
+    ingress:
+      enabled: false
+
+    autoscaler:
+      enabled: true
+      replicas: 1
+      minReplicas: 1
+      maxReplicas: 3
+      targetCPUUtil: 70
+    service:
+      type: ClusterIP
+      exposedPort: 80
+      internalPort: 8080
+    resources:
+      limits:
+        cpu: 200m
+        memory: 256Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+dashboard:
+  ingress:
+    enabled: true
+    host: transparency.ethcf.org
+    tlsSecret: "ethcf-tls"
+
+  autoscaler:
+    enabled: true
+    replicas: 1
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtil: 70
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+
+postgresql:
+  enabled: true
+  primary:
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        cpu: 200m
+        memory: 512Mi
+  auth:
+    postgresPassword: 
+    username:
+    password:
+    database: 

@@ -56,3 +56,38 @@ jobs:
                 tags: |
                     ethcf/transparency:frontend-${{ github.ref_name }}
                     ethcf/transparency:frontend-latest
+    
+    deploy:
+        needs: [backend, frontend]
+        name: Deploy ETHCF Transparency Dashboard
+        runs-on: ubuntu-latest
+        steps:
+          - name: Set up Helm
+            uses: azure/setup-helm@v4.3.0
+            with:
+                version: v3.16.1
+          - name: Google Auth
+            id: auth
+            uses: 'google-github-actions/auth@v2'
+            with:
+                token_format: 'access_token'
+                workload_identity_provider: '${{ secrets.WIF_PROVIDER_ID }}'
+                service_account: '${{ secrets.SERVICE_ACCOUNT_EMAIL }}'
+          - name: 'Set up Cloud SDK'
+            uses: 'google-github-actions/setup-gcloud@v2'
+            with:
+                version: '>= 541.0.0'
+          - name: 'Install kubectl'
+            run: 'gcloud components install kubectl'
+          - name: 'Get cluster credentials'
+            run: 'gcloud container clusters get-credentials ${{ secrets.CLUSTER_NAME }} --region ${{ secrets.REGION }}'
+          - name: 'Deploy'
+            run: |
+                helm upgrade --install ${{ vars.SERVICE_NAME }} ./helm  --values ops/ethcf.yaml \
+                    --set backend.image.tag=backend-${{ github.ref_name }} \
+                    --set frontend.image.tag=frontend-${{ github.ref_name }} \
+                    --namespace ${{ secrets.NAMESPACE }} --create-namespace --set namespace=${{ secrets.NAMESPACE }} \
+                    --set global.alchemy.apiKey=${{ secrets.ALCHEMY_KEY }} \
+                    --set global.initialAdminAddress=${{ secrets.INITIAL_ADMIN }} \
+                    --set global.rpcURL=${{ secrets.RPC_URL }} \
+                    --set postgresql.auth.POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
