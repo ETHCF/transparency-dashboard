@@ -95,7 +95,7 @@ jobs:
       run: |
         helm upgrade --install ${{ vars.SERVICE_NAME }} ./helm  --values ops/ethcf.yaml \
           --set backend.image.tag=backend-${{ github.ref_name }} \
-          --set frontend.image.tag=frontend-${{ github.ref_name }} \
+          --set dashboard.image.tag=frontend-${{ github.ref_name }} \
           --namespace ${{ secrets.NAMESPACE }} --create-namespace --set namespace=${{ secrets.NAMESPACE }} \
           --set global.alchemy.apiKey=${{ secrets.ALCHEMY_KEY }} \
           --set global.initialAdminAddress=${{ secrets.INITIAL_ADMIN }} \
