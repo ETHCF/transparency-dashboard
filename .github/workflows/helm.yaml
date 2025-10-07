@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
     - name: Google Auth
       id: auth
       uses: 'google-github-actions/auth@v2'
@@ -31,9 +31,9 @@ jobs:
         password: '${{ steps.auth.outputs.access_token }}'
         registry: 'us-central1-docker.pkg.dev'
     - name: Set up Helm
-      uses: azure/setup-helm@v4.3.0
+      uses: azure/setup-helm@v4.3.1
       with:
-        version: v3.19.0
+        version: ${{ vars.HELM_VERSION }}
     - name: Modify Default Docker Image Tags in values.yaml
       id: yaml-action
       uses: teunmooij/yaml@v1

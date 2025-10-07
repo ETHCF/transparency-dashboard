@@ -48,3 +48,10 @@ docker-compose.override.yml
 tmp/
 temp/
 *.tmp
+
+
+/backend/bin
+/frontend/node_modules
+/backend/scripts/.venv
+/backend/.env
+/helm/charts
