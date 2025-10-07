@@ -41,7 +41,7 @@ func GenEIP712DelegateChallenge(conf *config.Config, signerAddr, delegateTo stri
 			Name:    conf.Domain,
 			Version: "1",
 			ChainId: math.NewHexOrDecimal256(1),
-			Salt:    "Corn will rise",
+			Salt:    "ETH will rise!",
 		},
 		Message: apitypes.TypedDataMessage{
 			"timestamp":  math.NewHexOrDecimal256(time.Now().Unix()),
