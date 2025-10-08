@@ -7,6 +7,9 @@ This script demonstrates how to:
 2. Add transactions/transfer parties
 3. Add wallets (transfer parties)
 4. Set the organization name
+5. Create grants with milestones, disbursements, and funds usage
+6. Add assets
+7. Create monthly budgets and budget allocations
 
 Usage:
     python test_api.py --private-key <your_private_key> --base-url http://localhost:8080
@@ -21,7 +24,6 @@ from eth_account.signers.local import LocalAccount
 
 from web3 import Web3
 from eth_account.messages import encode_defunct
-import json
 
 
 class TransparencyDashboardAPI:
@@ -346,6 +348,34 @@ class TransparencyDashboardAPI:
             return None
 
 
+    def create_monthly_budget_allocation(self, allocation_data: Dict[str, Any]) -> Optional[str]:
+        """Create a new monthly budget allocation."""
+        url = f"{self.base_url}/api/v1/budgets/allocations"
+
+        try:
+            response = self.session.post(url, json=allocation_data)
+            response.raise_for_status()
+            result = response.json()
+            print(f"✓ Created monthly budget allocation: {allocation_data['category']} (ID: {result.get('id')})")
+            return result.get("id")
+        except requests.RequestException as e:
+            print(f"✗ Failed to create monthly budget allocation: {e} {getattr(e.response, 'text', '')}")
+            return None
+
+    def get_monthly_budget_allocations(self) -> Optional[list]:
+        """Get all monthly budget allocations."""
+        url = f"{self.base_url}/api/v1/budgets/allocations"
+
+        try:
+            response = self.session.get(url)
+            response.raise_for_status()
+            result = response.json()
+            return result
+        except requests.RequestException as e:
+            print(f"✗ Failed to get monthly budget allocations: {e}")
+            return None
+
+
 def main():
     parser = argparse.ArgumentParser(description="Test the transparency dashboard API")
     # 0x11A282e7bB9bE921313dDB6DAa2afbff920231C9, do not put any funds in this address, public testing private key
@@ -652,6 +682,31 @@ def main():
 
     step += 1
 
+    # Step: Create monthly budget allocations
+    print(f"\n{step}. Creating monthly budget allocations...")
+    test_allocations = [
+        {
+            "manager": "0x2eDecb91091324e0138EBBBaEd48ce1B2A050428",
+            "category": "Engineering",
+            "amount": "150000.00"
+        },
+        {
+            "manager": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+            "category": "Marketing",
+            "amount": "80000.00"
+        },
+        {
+            "manager": None,
+            "category": "Operations",
+            "amount": "50000.00"
+        }
+    ]
+
+    for allocation in test_allocations:
+        api.create_monthly_budget_allocation(allocation)
+
+    step += 1
+
     # Step: Get some data to verify everything works
     print(f"\n{step}. Fetching data to verify...")
 
@@ -662,13 +717,18 @@ def main():
     transfers = api.get_transfers()
     if transfers:
         print(f"   Found {len(transfers)} transfers")
+
     admins = api.list_admins()
     if admins is not None:
-        print(f"  • Total admins in system: {len(admins)}")
-        for admin in admins:
-            print(f"    - {json.dumps(admin)}")
+        print(f"   Found {len(admins)} admins")
     else:
         print("   Failed to fetch admins")
+
+    allocations = api.get_monthly_budget_allocations()
+    if allocations is not None:
+        print(f"   Found {len(allocations)} monthly budget allocations")
+    else:
+        print("   Failed to fetch monthly budget allocations")
 
     print("\n✅ API test completed successfully!")
     print("-" * 60)
@@ -678,6 +738,7 @@ def main():
     print(f"  • Added {len(test_wallets)} transfer parties")
     print("  • Created/managed 1 sample grant with milestones, disbursements, and funds usage entries")
     print(f"  • Added {len(test_assets)} test assets")
+    print(f"  • Created {len(test_allocations)} monthly budget allocations")
     #print(f"  • Created {len(test_transfers)} test transfers")
     
     return 0
