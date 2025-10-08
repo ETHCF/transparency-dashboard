@@ -9,8 +9,6 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-// TODO: function which runs the tern migrations for ./migrations
-
 func TrimZeros(s string) string {
 	if !strings.Contains(s, ".") {
 		return s
@@ -23,6 +21,7 @@ type DatabasePacket struct {
 	AdminActionDB AdminActionDB
 	AdminDB       AdminDB
 	AuthDB        AuthDB
+	BudgetDB      BudgetDB
 	ExpenseDB     ExpenseDB
 	GrantDB       GrantDB
 	SettingsDB    SettingsDB
@@ -58,10 +57,15 @@ func NewDatabasePacket(ctx context.Context, conf *config.Config, dbConn *sqlx.DB
 	if err != nil {
 		return DatabasePacket{}, err
 	}
+	budgetDB, err := NewBudgetDB(ctx, conf, dbConn)
+	if err != nil {
+		return DatabasePacket{}, err
+	}
 	return DatabasePacket{
 		AdminActionDB: adminActionDB,
 		AdminDB:       adminDB,
 		AuthDB:        authDB,
+		BudgetDB:      budgetDB,
 		ExpenseDB:     expenseDB,
 		GrantDB:       grantDB,
 		SettingsDB:    settingsDB,

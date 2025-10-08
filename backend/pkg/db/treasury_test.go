@@ -167,12 +167,12 @@ func Test_TreasuryDB_TransferOperations(t *testing.T) {
 		db             = GetTestTreasuryDB(t)
 		createTransfer = types.CreateTransfer{
 			TxHash:         ethutils.GenRandEVMHash(),
-			BlockNumber:    12345678,
+			BlockNumber:    12545678,
 			BlockTimestamp: time.Now().Unix(),
 			FromAddress:    ethutils.GenRandEVMAddr(),
 			ToAddress:      ethutils.GenRandEVMAddr(),
 			Asset:          ethutils.GenRandEVMAddr(),
-			Amount:         "500.25",
+			Amount:         "50025",
 			Direction:      types.TransferTypeIncoming,
 			LogIndex:       0,
 		}

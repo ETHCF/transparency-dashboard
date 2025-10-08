@@ -20,6 +20,7 @@ type RouteHandler struct {
 	grantDB       db.GrantDB
 	settingsDB    db.SettingsDB
 	treasuryDB    db.TreasuryDB
+	budgetDB      db.BudgetDB
 
 	// Auth
 	authMiddleware auth.Middleware
@@ -45,6 +46,7 @@ func NewRouteHandler(conf *config.Config, dbPacket db.DatabasePacket, authPacket
 		grantDB:       dbPacket.GrantDB,
 		settingsDB:    dbPacket.SettingsDB,
 		treasuryDB:    dbPacket.TreasuryDB,
+		budgetDB:      dbPacket.BudgetDB,
 
 		authMiddleware: authPacket.AuthMiddleware,
 		tokenVerifier:  authPacket.TokenVerifier,
@@ -78,6 +80,8 @@ func (rh *RouteHandler) ApplyRoutes(r *gin.Engine) {
 	api.GET("/expenses/:id", rh.GetExpenseByID)
 	api.GET("/expenses/:id/receipts", rh.GetExpenseReceipts)
 	api.GET("/receipts/:id", rh.GetReceiptByID)
+	api.GET("/budgets/monthly", rh.GetMonthlyBudgets)
+	api.GET("/budgets/allocations", rh.GetMonthlyBudgetAllocations)
 	api.GET("/settings/organization-name", rh.GetOrganizationName)
 	api.GET("/settings/total-funds-raised", rh.GetTotalFundsRaised)
 
@@ -109,4 +113,10 @@ func (rh *RouteHandler) ApplyRoutes(r *gin.Engine) {
 	api.PUT("/grants/:id/disbursements/:disbursementId", rh.authMiddleware.Handle, rh.UpdateDisbursement)
 	api.POST("/grants/:id/funds-usage", rh.authMiddleware.Handle, rh.CreateGrantFundsUsage)
 	api.PUT("/grants/:id/funds-usage/:usageId", rh.authMiddleware.Handle, rh.UpdateGrantFundsUsage)
+	api.POST("/budgets/monthly", rh.authMiddleware.Handle, rh.CreateMonthlyBudget)
+	api.PUT("/budgets/monthly/:id", rh.authMiddleware.Handle, rh.UpdateMonthlyBudget)
+	api.DELETE("/budgets/monthly/:id", rh.authMiddleware.Handle, rh.DeleteMonthlyBudget)
+	api.POST("/budgets/allocations", rh.authMiddleware.Handle, rh.CreateMonthlyBudgetAllocation)
+	api.PUT("/budgets/allocations/:id", rh.authMiddleware.Handle, rh.UpdateMonthlyBudgetAllocation)
+	api.DELETE("/budgets/allocations/:id", rh.authMiddleware.Handle, rh.DeleteMonthlyBudgetAllocation)
 }
