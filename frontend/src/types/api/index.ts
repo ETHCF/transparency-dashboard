@@ -292,3 +292,24 @@ export interface PaginatedResponse<T> {
   data: T[];
   meta?: PaginationMetaDto;
 }
+
+export interface MonthlyBudgetAllocationDto {
+  id: string;
+  manager: string | null;
+  category: string;
+  amount: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MonthlyBudgetAllocationCreatePayload {
+  manager: string | null;
+  category: string;
+  amount: string;
+}
+
+export interface MonthlyBudgetAllocationUpdatePayload {
+  manager: string | null;
+  category: string;
+  amount: string;
+}

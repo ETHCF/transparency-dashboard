@@ -28,6 +28,7 @@ import { Route as AdminTransfersRouteImport } from './routes/admin/transfers'
 import { Route as AdminOrganizationRouteImport } from './routes/admin/organization'
 import { Route as AdminGrantsRouteImport } from './routes/admin/grants'
 import { Route as AdminExpensesRouteImport } from './routes/admin/expenses'
+import { Route as AdminBudgetsRouteImport } from './routes/admin/budgets'
 import { Route as AdminAuditLogRouteImport } from './routes/admin/audit-log'
 import { Route as AdminAdminsRouteImport } from './routes/admin/admins'
 import { Route as AdminAddAssetRouteImport } from './routes/admin/add-asset'
@@ -134,6 +135,11 @@ const AdminExpensesRoute = AdminExpensesRouteImport.update({
   path: '/expenses',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminBudgetsRoute = AdminBudgetsRouteImport.update({
+  id: '/budgets',
+  path: '/budgets',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAuditLogRoute = AdminAuditLogRouteImport.update({
   id: '/audit-log',
   path: '/audit-log',
@@ -214,6 +220,7 @@ export interface FileRoutesByFullPath {
   '/admin/add-asset': typeof AdminAddAssetRoute
   '/admin/admins': typeof AdminAdminsRoute
   '/admin/audit-log': typeof AdminAuditLogRoute
+  '/admin/budgets': typeof AdminBudgetsRoute
   '/admin/expenses': typeof AdminExpensesRouteWithChildren
   '/admin/grants': typeof AdminGrantsRouteWithChildren
   '/admin/organization': typeof AdminOrganizationRoute
@@ -244,6 +251,7 @@ export interface FileRoutesByTo {
   '/admin/add-asset': typeof AdminAddAssetRoute
   '/admin/admins': typeof AdminAdminsRoute
   '/admin/audit-log': typeof AdminAuditLogRoute
+  '/admin/budgets': typeof AdminBudgetsRoute
   '/admin/organization': typeof AdminOrganizationRoute
   '/admin/transfers': typeof AdminTransfersRoute
   '/admin/wallets': typeof AdminWalletsRoute
@@ -274,6 +282,7 @@ export interface FileRoutesById {
   '/admin/add-asset': typeof AdminAddAssetRoute
   '/admin/admins': typeof AdminAdminsRoute
   '/admin/audit-log': typeof AdminAuditLogRoute
+  '/admin/budgets': typeof AdminBudgetsRoute
   '/admin/expenses': typeof AdminExpensesRouteWithChildren
   '/admin/grants': typeof AdminGrantsRouteWithChildren
   '/admin/organization': typeof AdminOrganizationRoute
@@ -308,6 +317,7 @@ export interface FileRouteTypes {
     | '/admin/add-asset'
     | '/admin/admins'
     | '/admin/audit-log'
+    | '/admin/budgets'
     | '/admin/expenses'
     | '/admin/grants'
     | '/admin/organization'
@@ -338,6 +348,7 @@ export interface FileRouteTypes {
     | '/admin/add-asset'
     | '/admin/admins'
     | '/admin/audit-log'
+    | '/admin/budgets'
     | '/admin/organization'
     | '/admin/transfers'
     | '/admin/wallets'
@@ -367,6 +378,7 @@ export interface FileRouteTypes {
     | '/admin/add-asset'
     | '/admin/admins'
     | '/admin/audit-log'
+    | '/admin/budgets'
     | '/admin/expenses'
     | '/admin/grants'
     | '/admin/organization'
@@ -525,6 +537,13 @@ declare module '@tanstack/react-router' {
       path: '/expenses'
       fullPath: '/admin/expenses'
       preLoaderRoute: typeof AdminExpensesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/budgets': {
+      id: '/admin/budgets'
+      path: '/budgets'
+      fullPath: '/admin/budgets'
+      preLoaderRoute: typeof AdminBudgetsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/audit-log': {
@@ -697,6 +716,7 @@ interface AdminRouteChildren {
   AdminAddAssetRoute: typeof AdminAddAssetRoute
   AdminAdminsRoute: typeof AdminAdminsRoute
   AdminAuditLogRoute: typeof AdminAuditLogRoute
+  AdminBudgetsRoute: typeof AdminBudgetsRoute
   AdminExpensesRoute: typeof AdminExpensesRouteWithChildren
   AdminGrantsRoute: typeof AdminGrantsRouteWithChildren
   AdminOrganizationRoute: typeof AdminOrganizationRoute
@@ -711,6 +731,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAddAssetRoute: AdminAddAssetRoute,
   AdminAdminsRoute: AdminAdminsRoute,
   AdminAuditLogRoute: AdminAuditLogRoute,
+  AdminBudgetsRoute: AdminBudgetsRoute,
   AdminExpensesRoute: AdminExpensesRouteWithChildren,
   AdminGrantsRoute: AdminGrantsRouteWithChildren,
   AdminOrganizationRoute: AdminOrganizationRoute,

@@ -18,4 +18,5 @@ export const queryKeys = {
   admins: () => ["admins"] as const,
   auditLog: (params?: unknown) => ["audit-log", params ?? {}] as const,
   settings: () => ["settings"] as const,
+  budgetAllocations: () => ["budget-allocations"] as const,
 };
