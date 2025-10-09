@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 
@@ -36,26 +36,37 @@ const ExpenseEditPage = () => {
   const categoriesQuery = useCategoriesQuery();
   const updateMutation = useUpdateExpenseMutation(expenseId);
   const addToast = useUiStore((state) => state.addToast);
+  const hasInitialized = useRef(false);
 
-  const form = useForm<FormValues>({ resolver: zodResolver(schema) });
+  const form = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      item: "",
+      category: "",
+      quantity: 1,
+      price: 0,
+      purpose: "",
+      date: "",
+      txHash: "",
+    },
+  });
 
   const categories = categoriesQuery.data ?? [];
 
   useEffect(() => {
-    if (!expenseQuery.data) {
-      return;
+    if (expenseQuery.data && !hasInitialized.current) {
+      const expense = expenseQuery.data;
+      form.reset({
+        item: expense.item,
+        category: expense.category || "",
+        quantity: expense.quantity,
+        price: expense.price,
+        purpose: expense.purpose || "",
+        date: expense.date.toISOString().slice(0, 10),
+        txHash: expense.txHash ?? "",
+      });
+      hasInitialized.current = true;
     }
-
-    const expense = expenseQuery.data;
-    form.reset({
-      item: expense.item,
-      category: expense.category,
-      quantity: expense.quantity,
-      price: expense.price,
-      purpose: expense.purpose,
-      date: expense.date.toISOString().slice(0, 10),
-      txHash: expense.txHash ?? "",
-    });
   }, [expenseQuery.data, form]);
 
   const onSubmit = form.handleSubmit(async (values) => {
@@ -94,6 +105,11 @@ const ExpenseEditPage = () => {
     );
   }
 
+  // Don't render the form until it's been initialized
+  if (!hasInitialized.current) {
+    return <Loader label="Loading expense" />;
+  }
+
   return (
     <Page>
       <PageSection
@@ -114,8 +130,7 @@ const ExpenseEditPage = () => {
               control={form.control}
               render={({ field }) => (
                 <SelectField
-                  value={field.value}
-                  onChange={field.onChange}
+                  {...field}
                   placeholder="Select a category"
                   options={categories.map((cat) => ({
                     value: cat.name,
