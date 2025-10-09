@@ -69,3 +69,6 @@ postgresql:
     username:
     password:
     database: 
+    secretKeys:
+      adminPasswordKey: "postgres-password"
+      userPasswordKey: "postgres-password"
