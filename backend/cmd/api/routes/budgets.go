@@ -8,7 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 
-	"github.com/ETHCF/ethutils"
 	"github.com/ETHCF/transparency-dashboard/backend/pkg/auth"
 	"github.com/ETHCF/transparency-dashboard/backend/pkg/types"
 )
@@ -35,10 +34,6 @@ func (rh *RouteHandler) CreateMonthlyBudgetAllocation(c *gin.Context) {
 		rh.log.WithError(err).Warn("failed to bind create monthly budget allocation request")
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
-	}
-
-	if req.Manager.Valid {
-		req.Manager.String, err = ethutils.SanitizeEthAddr(req.Manager.String)
 	}
 
 	allocationID, err := rh.budgetDB.CreateMonthlyBudgetAllocation(c, req)
@@ -87,10 +82,6 @@ func (rh *RouteHandler) UpdateMonthlyBudgetAllocation(c *gin.Context) {
 		rh.log.WithError(err).Warn("failed to bind update monthly budget allocation request")
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
-	}
-
-	if req.Manager.Valid {
-		req.Manager.String, err = ethutils.SanitizeEthAddr(req.Manager.String)
 	}
 
 	if err := rh.budgetDB.UpdateMonthlyBudgetAllocation(c, id, req); err != nil {

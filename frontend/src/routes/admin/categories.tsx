@@ -37,8 +37,6 @@ const CategoriesAdminPage = () => {
   const addToast = useUiStore((state) => state.addToast);
 
   const [editingCategory, setEditingCategory] = useState<CategoryDto | null>(null);
-  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [categoryToDelete, setCategoryToDelete] = useState<string | null>(null);
 
   const form = useForm<FormValues>({ resolver: zodResolver(schema) });
 
@@ -77,19 +75,10 @@ const CategoriesAdminPage = () => {
     form.reset();
   };
 
-  const handleDeleteClick = (name: string) => {
-    setCategoryToDelete(name);
-    setDeleteConfirmOpen(true);
-  };
-
-  const handleDeleteConfirm = async () => {
-    if (!categoryToDelete) return;
-
+  const handleDelete = async (name: string) => {
     try {
-      await deleteMutation.mutateAsync(categoryToDelete);
+      await deleteMutation.mutateAsync(name);
       addToast({ title: "Category deleted", variant: "success" });
-      setDeleteConfirmOpen(false);
-      setCategoryToDelete(null);
     } catch (error) {
       addToast({ title: "Failed to delete category", variant: "error" });
     }
@@ -166,13 +155,24 @@ const CategoriesAdminPage = () => {
                   >
                     Edit
                   </button>
-                  <button
-                    className="btn btnSmall btnDanger"
-                    onClick={() => handleDeleteClick(category.name)}
-                    disabled={deleteMutation.isPending}
-                  >
-                    Delete
-                  </button>
+                  <ConfirmDialog
+                    title="Delete Category"
+                    description={`Are you sure you want to delete the category "${category.name}"? This action cannot be undone.`}
+                    confirmLabel="Delete"
+                    cancelLabel="Cancel"
+                    variant="danger"
+                    onConfirm={() => {
+                      void handleDelete(category.name);
+                    }}
+                    trigger={
+                      <button
+                        className="btn btnSmall btnDanger"
+                        disabled={deleteMutation.isPending}
+                      >
+                        Delete
+                      </button>
+                    }
+                  />
                 </div>
               ),
             },
@@ -187,16 +187,6 @@ const CategoriesAdminPage = () => {
           }
         />
       </PageSection>
-
-      <ConfirmDialog
-        open={deleteConfirmOpen}
-        onOpenChange={setDeleteConfirmOpen}
-        title="Delete Category"
-        description={`Are you sure you want to delete the category "${categoryToDelete}"? This action cannot be undone.`}
-        onConfirm={handleDeleteConfirm}
-        confirmText="Delete"
-        variant="danger"
-      />
     </Page>
   );
 };

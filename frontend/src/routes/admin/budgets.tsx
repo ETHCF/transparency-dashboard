@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { useState } from "react";
 
@@ -9,6 +9,7 @@ import { ErrorState } from "@/components/common/ErrorState";
 import { Loader } from "@/components/common/Loader";
 import { FormField } from "@/components/forms/FormField";
 import { Input } from "@/components/forms/Input";
+import { SelectField } from "@/components/forms/Select";
 import { Page, PageSection } from "@/components/layout/Page";
 import { DataTable } from "@/components/table/DataTable";
 import { ConfirmDialog } from "@/components/dialogs/ConfirmDialog";
@@ -18,6 +19,7 @@ import {
   useUpdateBudgetAllocationMutation,
   useDeleteBudgetAllocationMutation,
 } from "@/services/budgets";
+import { useCategoriesQuery } from "@/services/categories";
 import { useUiStore } from "@/stores/ui";
 import { formatCurrency } from "@/utils/format";
 import type { MonthlyBudgetAllocationDto } from "@/types/api";
@@ -32,12 +34,15 @@ type FormValues = z.infer<typeof schema>;
 
 const BudgetsAdminPage = () => {
   const budgetsQuery = useBudgetAllocationsQuery();
+  const categoriesQuery = useCategoriesQuery();
   const createMutation = useCreateBudgetAllocationMutation();
   const updateMutation = useUpdateBudgetAllocationMutation();
   const deleteMutation = useDeleteBudgetAllocationMutation();
   const addToast = useUiStore((state) => state.addToast);
   const form = useForm<FormValues>({ resolver: zodResolver(schema) });
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  const categories = categoriesQuery.data ?? [];
 
   const onSubmit = form.handleSubmit(async (values) => {
     const payload = {
@@ -79,7 +84,7 @@ const BudgetsAdminPage = () => {
     addToast({ title: "Budget allocation deleted", variant: "success" });
   };
 
-  if (budgetsQuery.isPending) {
+  if (budgetsQuery.isPending || categoriesQuery.isPending) {
     return <Loader label="Loading budget allocations" />;
   }
 
@@ -88,6 +93,15 @@ const BudgetsAdminPage = () => {
       <ErrorState
         title="Unable to load budget allocations"
         description={budgetsQuery.error?.message}
+      />
+    );
+  }
+
+  if (categoriesQuery.isError) {
+    return (
+      <ErrorState
+        title="Unable to load categories"
+        description={categoriesQuery.error?.message}
       />
     );
   }
@@ -102,7 +116,22 @@ const BudgetsAdminPage = () => {
             label="Category"
             error={form.formState.errors.category?.message}
           >
-            <Input {...form.register("category")} placeholder="e.g., Engineering, Marketing" />
+            <Controller
+              name="category"
+              control={form.control}
+              render={({ field }) => (
+                <SelectField
+                  {...field}
+                  options={[
+                    { value: "", label: "Select a category" },
+                    ...categories.map((cat) => ({
+                      value: cat.name,
+                      label: cat.name,
+                    })),
+                  ]}
+                />
+              )}
+            />
           </FormField>
           <FormField
             label="Monthly Amount"

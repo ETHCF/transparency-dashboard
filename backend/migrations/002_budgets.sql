@@ -12,7 +12,7 @@ INSERT INTO "categories" ("name", "description") VALUES ('Miscellaneous', 'Misce
 
 CREATE TABLE IF NOT EXISTS  "monthly_budget_allocations" (
     "id" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    "manager" ETH_ADDR_T DEFAULT NULL,
+    "manager" VARCHAR(255) DEFAULT NULL,
     "category" VARCHAR(100) NOT NULL UNIQUE REFERENCES "categories"("name") ON DELETE CASCADE,
     "amount" FIAT_T NOT NULL,
     "created_at" TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
