@@ -1,12 +1,26 @@
-export const formatCurrency = (value: number, currency: string = "USD") =>
-  new Intl.NumberFormat("en-US", {
+export const formatCurrency = (value: number | string, currency: string = "USD") => {
+  const numValue = typeof value === 'string' ? parseFloat(value) : value;
+  if (isNaN(numValue)) {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 2,
+    }).format(0);
+  }
+  return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency,
     maximumFractionDigits: 2,
-  }).format(value);
+  }).format(numValue);
+};
 
-export const formatTokenAmount = (value: number, symbol: string) =>
-  `${value.toLocaleString(undefined, { maximumFractionDigits: 4 })} ${symbol}`;
+export const formatTokenAmount = (value: number | string, symbol: string) => {
+  const numValue = typeof value === 'string' ? parseFloat(value) : value;
+  if (isNaN(numValue)) {
+    return `0 ${symbol}`;
+  }
+  return `${numValue.toLocaleString(undefined, { maximumFractionDigits: 4 })} ${symbol}`;
+};
 
 export const formatDate = (date: Date | string | null | undefined) => {
   if (!date) return 'N/A';
