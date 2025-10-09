@@ -313,3 +313,8 @@ export interface MonthlyBudgetAllocationUpdatePayload {
   category: string;
   amount: string;
 }
+
+export interface CategoryDto {
+  name: string;
+  description: string;
+}

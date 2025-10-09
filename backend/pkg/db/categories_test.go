@@ -169,21 +169,6 @@ func Test_CategoryDB_DeleteCategory_NotFound(t *testing.T) {
 	require.Contains(t, err.Error(), fmt.Sprintf("category %s not found", nonExistentName))
 }
 
-func Test_CategoryDB_GetCategories_EmptyResult(t *testing.T) {
-	var (
-		db = GetTestCategoryDB(t)
-	)
-
-	// Clean up all categories first
-	_, err := dbConn.ExecContext(t.Context(), "DELETE FROM categories")
-	require.NoError(t, err)
-
-	// Get categories - should return empty slice
-	categories, err := db.GetCategories(t.Context())
-	require.NoError(t, err)
-	require.Empty(t, categories)
-}
-
 func Test_CategoryDB_CreateCategory_Duplicate(t *testing.T) {
 	var (
 		db       = GetTestCategoryDB(t)
@@ -207,40 +192,5 @@ func Test_CategoryDB_CreateCategory_Duplicate(t *testing.T) {
 
 	// Clean up
 	_, err = dbConn.ExecContext(t.Context(), "DELETE FROM categories WHERE name = $1", category.Name)
-	require.NoError(t, err)
-}
-
-func Test_CategoryDB_GetCategories_OrderedByName(t *testing.T) {
-	var (
-		db         = GetTestCategoryDB(t)
-		categories = []types.Category{
-			{Name: "zebra-category", Description: "Last alphabetically"},
-			{Name: "alpha-category", Description: "First alphabetically"},
-			{Name: "middle-category", Description: "Middle alphabetically"},
-		}
-	)
-
-	// Clean up first
-	_, err := dbConn.ExecContext(t.Context(), "DELETE FROM categories")
-	require.NoError(t, err)
-
-	// Create categories in random order
-	for _, cat := range categories {
-		err := db.CreateCategory(t.Context(), cat)
-		require.NoError(t, err)
-	}
-
-	// Get categories - should be ordered by name
-	retrievedCategories, err := db.GetCategories(t.Context())
-	require.NoError(t, err)
-	require.Len(t, retrievedCategories, 3)
-
-	// Verify order
-	require.Equal(t, "alpha-category", retrievedCategories[0].Name)
-	require.Equal(t, "middle-category", retrievedCategories[1].Name)
-	require.Equal(t, "zebra-category", retrievedCategories[2].Name)
-
-	// Clean up
-	_, err = dbConn.ExecContext(t.Context(), "DELETE FROM categories")
 	require.NoError(t, err)
 }

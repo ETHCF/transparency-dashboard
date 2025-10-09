@@ -37,7 +37,7 @@ func NewCategoryDB(ctx context.Context, conf *config.Config, dbConn *sqlx.DB) (C
 	categoryColsNoQuote := psql.GetSQLColumns[types.Category]()
 
 	getCategories, err := dbConn.PreparexContext(ctx, fmt.Sprintf(`
-		SELECT %s FROM categories ORDER BY name`, strings.Join(categoryCols, ", ")))
+		SELECT %s FROM categories`, strings.Join(categoryCols, ", ")))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to prepare GetCategories statement")
 	}

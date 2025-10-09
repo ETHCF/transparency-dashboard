@@ -1,7 +1,7 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 
 import { EmptyState } from "@/components/common/EmptyState";
@@ -9,8 +9,10 @@ import { ErrorState } from "@/components/common/ErrorState";
 import { Loader } from "@/components/common/Loader";
 import { FormField } from "@/components/forms/FormField";
 import { Input } from "@/components/forms/Input";
+import { SelectField } from "@/components/forms/Select";
 import { TextArea } from "@/components/forms/TextArea";
 import { Page, PageSection } from "@/components/layout/Page";
+import { useCategoriesQuery } from "@/services/categories";
 import {
   useCreateGrantFundsUsageMutation,
   useGrantFundsUsageQuery,
@@ -66,11 +68,14 @@ const toDrafts = (items: Expense[]): DraftUsage[] =>
 const FundsUsageManagerPage = () => {
   const { grantId } = Route.useParams();
   const fundsUsageQuery = useGrantFundsUsageQuery(grantId);
+  const categoriesQuery = useCategoriesQuery();
   const createMutation = useCreateGrantFundsUsageMutation(grantId);
   const updateMutation = useUpdateGrantFundsUsageMutation(grantId);
   const addToast = useUiStore((state) => state.addToast);
   const [drafts, setDrafts] = useState<DraftUsage[]>([]);
   const createForm = useForm<CreateFormValues>({ resolver: zodResolver(createSchema) });
+
+  const categories = categoriesQuery.data ?? [];
 
   useEffect(() => {
     if (fundsUsageQuery.data) {
@@ -136,7 +141,7 @@ const FundsUsageManagerPage = () => {
     createForm.reset();
   });
 
-  if (fundsUsageQuery.isPending) {
+  if (fundsUsageQuery.isPending || categoriesQuery.isPending) {
     return <Loader label="Loading funds usage" />;
   }
 
@@ -145,6 +150,15 @@ const FundsUsageManagerPage = () => {
       <ErrorState
         title="Unable to load funds usage"
         description={fundsUsageQuery.error?.message}
+      />
+    );
+  }
+
+  if (categoriesQuery.isError) {
+    return (
+      <ErrorState
+        title="Unable to load categories"
+        description={categoriesQuery.error?.message}
       />
     );
   }
@@ -167,7 +181,21 @@ const FundsUsageManagerPage = () => {
             <Input {...createForm.register("item")} />
           </FormField>
           <FormField label="Category" error={createForm.formState.errors.category?.message}>
-            <Input {...createForm.register("category")} />
+            <Controller
+              name="category"
+              control={createForm.control}
+              render={({ field }) => (
+                <SelectField
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="Select a category"
+                  options={categories.map((cat) => ({
+                    value: cat.name,
+                    label: cat.name,
+                  }))}
+                />
+              )}
+            />
           </FormField>
           <FormField
             label="Quantity"
@@ -238,11 +266,16 @@ const FundsUsageManagerPage = () => {
                   />
                 </FormField>
                 <FormField label="Category">
-                  <Input
+                  <SelectField
                     value={usage.category}
-                    onChange={(event) =>
-                      handleDraftChange(usage.id, "category", event.target.value)
+                    onChange={(value) =>
+                      handleDraftChange(usage.id, "category", value)
                     }
+                    placeholder="Select a category"
+                    options={categories.map((cat) => ({
+                      value: cat.name,
+                      label: cat.name,
+                    }))}
                   />
                 </FormField>
                 <div style={{ display: "grid", gap: "0.75rem", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))" }}>

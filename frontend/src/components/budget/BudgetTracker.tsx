@@ -54,28 +54,6 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
     }));
   }, [budgetAllocationsQuery.data, expensesQuery.data]);
 
-  if (budgetAllocationsQuery.isPending || expensesQuery.isPending) {
-    return <Loader label="Loading budget data" />;
-  }
-
-  if (budgetAllocationsQuery.isError) {
-    return (
-      <ErrorState
-        title="Unable to load budget allocations"
-        description={budgetAllocationsQuery.error?.message}
-      />
-    );
-  }
-
-  if (expensesQuery.isError) {
-    return (
-      <ErrorState
-        title="Unable to load expenses"
-        description={expensesQuery.error?.message}
-      />
-    );
-  }
-
   const totals = useMemo(() => {
     const totalBudgeted = budgetData.reduce((sum, cat) => sum + cat.budgeted, 0);
     const totalActual = budgetData.reduce((sum, cat) => sum + cat.actual, 0);
@@ -98,6 +76,28 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
       value: cat.actual, // For single bar charts
     }));
   }, [budgetData]);
+
+  if (budgetAllocationsQuery.isPending || expensesQuery.isPending) {
+    return <Loader label="Loading budget data" />;
+  }
+
+  if (budgetAllocationsQuery.isError) {
+    return (
+      <ErrorState
+        title="Unable to load budget allocations"
+        description={budgetAllocationsQuery.error?.message}
+      />
+    );
+  }
+
+  if (expensesQuery.isError) {
+    return (
+      <ErrorState
+        title="Unable to load expenses"
+        description={expensesQuery.error?.message}
+      />
+    );
+  }
 
   const getVarianceColor = (variance: number) => {
     if (variance > 0.1) return styles.overBudget;

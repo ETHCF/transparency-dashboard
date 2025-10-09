@@ -19,4 +19,5 @@ export const queryKeys = {
   auditLog: (params?: unknown) => ["audit-log", params ?? {}] as const,
   settings: () => ["settings"] as const,
   budgetAllocations: () => ["budget-allocations"] as const,
+  categories: () => ["categories"] as const,
 };

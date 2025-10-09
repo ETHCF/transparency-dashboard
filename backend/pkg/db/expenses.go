@@ -4,12 +4,14 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
-	"github.com/numbergroup/errors"
 	"github.com/google/uuid"
 	"github.com/innodv/psql"
 	"github.com/jmoiron/sqlx"
+	"github.com/numbergroup/errors"
 	"github.com/sirupsen/logrus"
+	"gopkg.in/guregu/null.v4"
 
 	"github.com/ETHCF/transparency-dashboard/backend/pkg/config"
 	"github.com/ETHCF/transparency-dashboard/backend/pkg/types"
@@ -30,6 +32,8 @@ type ExpenseDB interface {
 	GetReceiptByID(ctx context.Context, receiptID uuid.UUID) (*types.Receipt, error)
 	DeleteReceipt(ctx context.Context, receiptID uuid.UUID) error
 	ReceiptExists(ctx context.Context, receiptID uuid.UUID) (bool, error)
+
+	GetSpendingBreakdown(ctx context.Context, start time.Time, end null.Time) ([]types.SpendingBreakdown, error)
 }
 
 type expense struct {
@@ -45,6 +49,8 @@ type expense struct {
 	getReceiptByID         *sqlx.Stmt
 	deleteReceipt          *sqlx.Stmt
 	receiptExists          *sqlx.Stmt
+
+	spendingBreakdownByCategoryForTime *sqlx.Stmt
 }
 
 func NewExpenseDB(ctx context.Context, conf *config.Config, dbConn *sqlx.DB) (ExpenseDB, error) {
@@ -116,19 +122,30 @@ func NewExpenseDB(ctx context.Context, conf *config.Config, dbConn *sqlx.DB) (Ex
 		return nil, errors.Wrap(err, "failed to prepare ReceiptExists statement")
 	}
 
+	spendingBreakdownByCategoryForTime, err := dbConn.PreparexContext(ctx, `
+		SELECT 
+			category,
+			SUM(price * quantity) AS total,
+			COUNT(*) AS entries 
+		FROM expenses WHERE date >= $1 AND ($2::DATE IS NULL OR date < $2) GROUP BY category`)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to prepare GetSpendingBreakdown statement")
+	}
+
 	return &expense{
-		log:                    conf.GetLogger(),
-		dbConn:                 dbConn,
-		getExpenses:            getExpenses,
-		createExpense:          createExpense,
-		getExpenseByID:         getExpenseByID,
-		deleteExpense:          deleteExpense,
-		expenseExists:          expenseExists,
-		createReceipt:          createReceipt,
-		getReceiptsByExpenseID: getReceiptsByExpenseID,
-		getReceiptByID:         getReceiptByID,
-		deleteReceipt:          deleteReceipt,
-		receiptExists:          receiptExists,
+		log:                                conf.GetLogger(),
+		dbConn:                             dbConn,
+		getExpenses:                        getExpenses,
+		createExpense:                      createExpense,
+		getExpenseByID:                     getExpenseByID,
+		deleteExpense:                      deleteExpense,
+		expenseExists:                      expenseExists,
+		createReceipt:                      createReceipt,
+		getReceiptsByExpenseID:             getReceiptsByExpenseID,
+		getReceiptByID:                     getReceiptByID,
+		deleteReceipt:                      deleteReceipt,
+		receiptExists:                      receiptExists,
+		spendingBreakdownByCategoryForTime: spendingBreakdownByCategoryForTime,
 	}, nil
 }
 
@@ -275,4 +292,16 @@ func (e *expense) ReceiptExists(ctx context.Context, receiptID uuid.UUID) (bool,
 		return false, errors.Wrap(err, "failed to check if receipt exists")
 	}
 	return exists, nil
+}
+
+func (e *expense) GetSpendingBreakdown(ctx context.Context, start time.Time, end null.Time) ([]types.SpendingBreakdown, error) {
+	var breakdown []types.SpendingBreakdown
+	err := e.spendingBreakdownByCategoryForTime.SelectContext(ctx, &breakdown, start, end)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get spending breakdown")
+	}
+	if len(breakdown) == 0 {
+		return []types.SpendingBreakdown{}, nil
+	}
+	return breakdown, nil
 }

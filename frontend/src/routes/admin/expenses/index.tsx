@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 
 import { EmptyState } from "@/components/common/EmptyState";
@@ -8,10 +8,12 @@ import { ErrorState } from "@/components/common/ErrorState";
 import { Loader } from "@/components/common/Loader";
 import { FormField } from "@/components/forms/FormField";
 import { Input } from "@/components/forms/Input";
+import { SelectField } from "@/components/forms/Select";
 import { TextArea } from "@/components/forms/TextArea";
 import { Page, PageSection } from "@/components/layout/Page";
 import { DataTable } from "@/components/table/DataTable";
 import { ConfirmDialog } from "@/components/dialogs/ConfirmDialog";
+import { useCategoriesQuery } from "@/services/categories";
 import {
   useCreateExpenseMutation,
   useDeleteExpenseMutation,
@@ -34,10 +36,14 @@ type FormValues = z.infer<typeof schema>;
 
 const ExpensesAdminPage = () => {
   const expensesQuery = useExpensesQuery({ limit: 50 });
+  const categoriesQuery = useCategoriesQuery();
   const createMutation = useCreateExpenseMutation();
   const deleteMutation = useDeleteExpenseMutation();
   const addToast = useUiStore((state) => state.addToast);
   const form = useForm<FormValues>({ resolver: zodResolver(schema) });
+
+  const expenses = expensesQuery.data ?? [];
+  const categories = categoriesQuery.data ?? [];
 
   const onSubmit = form.handleSubmit(async (values) => {
     const payload = {
@@ -59,7 +65,7 @@ const ExpensesAdminPage = () => {
     addToast({ title: "Expense deleted", variant: "success" });
   };
 
-  if (expensesQuery.isPending) {
+  if (expensesQuery.isPending || categoriesQuery.isPending) {
     return <Loader label="Loading expenses" />;
   }
 
@@ -72,7 +78,14 @@ const ExpensesAdminPage = () => {
     );
   }
 
-  const expenses = expensesQuery.data ?? [];
+  if (categoriesQuery.isError) {
+    return (
+      <ErrorState
+        title="Unable to load categories"
+        description={categoriesQuery.error?.message}
+      />
+    );
+  }
 
   return (
     <Page>
@@ -85,7 +98,21 @@ const ExpensesAdminPage = () => {
             label="Category"
             error={form.formState.errors.category?.message}
           >
-            <Input {...form.register("category")} />
+            <Controller
+              name="category"
+              control={form.control}
+              render={({ field }) => (
+                <SelectField
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="Select a category"
+                  options={categories.map((cat) => ({
+                    value: cat.name,
+                    label: cat.name,
+                  }))}
+                />
+              )}
+            />
           </FormField>
           <FormField
             label="Quantity"

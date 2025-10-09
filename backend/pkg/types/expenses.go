@@ -108,3 +108,9 @@ type UploadReceiptRequest struct {
 	Name string `form:"name" binding:"required"`
 	// File is handled separately by gin's multipart form handling
 }
+
+type SpendingBreakdown struct {
+	Category string  `json:"category" db:"category"`
+	Total    float64 `json:"total" db:"total"`
+	Entries  int     `json:"entries" db:"entries"`
+}
