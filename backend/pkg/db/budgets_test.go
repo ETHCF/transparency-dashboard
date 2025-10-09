@@ -18,6 +18,8 @@ import (
 func GetTestBudgetDB(t *testing.T) BudgetDB {
 	bdb, err := NewBudgetDB(t.Context(), conf, dbConn)
 	require.NoError(t, err)
+	_, err = dbConn.ExecContext(t.Context(), "INSERT INTO categories (name, description) VALUES ($1, $2) ON CONFLICT (name) DO NOTHING", "test", "Test category")
+	require.NoError(t, err)
 	return bdb
 }
 
@@ -27,7 +29,7 @@ func Test_BudgetDB_CreateAndGetMonthlyBudgetAllocations(t *testing.T) {
 		allocation = types.MonthlyBudgetAllocation{
 			ID:        uuid.New(),
 			Manager:   null.NewString("0x6e8b11a54c8e80ac44279a5e6ad3dabd55280987", true),
-			Category:  "engineering",
+			Category:  "test",
 			Amount:    "15000.00",
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
@@ -68,7 +70,7 @@ func Test_BudgetDB_CreateMonthlyBudgetAllocationNullManager(t *testing.T) {
 		allocation = types.MonthlyBudgetAllocation{
 			ID:        uuid.New(),
 			Manager:   null.NewString("", false), // NULL manager
-			Category:  "general",
+			Category:  "test",
 			Amount:    "5000.00",
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
@@ -127,7 +129,7 @@ func Test_BudgetDB_DeleteMonthlyBudgetAllocation(t *testing.T) {
 		allocation = types.MonthlyBudgetAllocation{
 			ID:        uuid.New(),
 			Manager:   null.NewString("0x1dda38807a9ef3b98127d3a0dc7ff9756b1268da", true),
-			Category:  "research",
+			Category:  "test",
 			Amount:    "4000.00",
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),

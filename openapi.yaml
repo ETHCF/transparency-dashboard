@@ -1852,6 +1852,212 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /api/v1/categories:
+    get:
+      summary: Get categories
+      description: Returns a list of all expense categories
+      operationId: getCategories
+      tags:
+        - Categories
+      responses:
+        '200':
+          description: Successfully retrieved categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create category
+      description: Creates a new expense category
+      operationId: createCategory
+      tags:
+        - Categories
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+            examples:
+              create_category:
+                summary: Create a new category
+                value:
+                  name: "Research"
+                  description: "Research and development expenses"
+      responses:
+        '201':
+          description: Category created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '400':
+          description: Bad request - invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/categories/{name}:
+    get:
+      summary: Get category by name
+      description: Returns a specific category by its name
+      operationId: getCategoryByName
+      tags:
+        - Categories
+      parameters:
+        - name: name
+          in: path
+          required: true
+          description: The category name
+          schema:
+            type: string
+            example: "Research"
+      responses:
+        '200':
+          description: Successfully retrieved category
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '404':
+          description: Category not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Update category
+      description: Updates an existing category's description
+      operationId: updateCategory
+      tags:
+        - Categories
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: name
+          in: path
+          required: true
+          description: The category name
+          schema:
+            type: string
+            example: "Research"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCategoryRequest'
+            examples:
+              update_category:
+                summary: Update category description
+                value:
+                  description: "Updated research and development expenses"
+      responses:
+        '200':
+          description: Category updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '400':
+          description: Bad request - invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Category not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete category
+      description: Deletes a category
+      operationId: deleteCategory
+      tags:
+        - Categories
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: name
+          in: path
+          required: true
+          description: The category name
+          schema:
+            type: string
+            example: "Research"
+      responses:
+        '200':
+          description: Category deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Category deleted successfully"
+        '401':
+          description: Unauthorized - invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Category not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /api/v1/admin-actions:
     get:
       summary: Get admin actions
@@ -2858,6 +3064,21 @@ components:
         - manager
         - category
         - amount
+
+    Category:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Category name (serves as unique identifier)
+          example: "Research"
+        description:
+          type: string
+          description: Category description
+          example: "Research and development expenses"
+      required:
+        - name
+        - description
 
   securitySchemes:
     bearerAuth:

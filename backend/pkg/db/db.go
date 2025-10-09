@@ -22,6 +22,7 @@ type DatabasePacket struct {
 	AdminDB       AdminDB
 	AuthDB        AuthDB
 	BudgetDB      BudgetDB
+	CategoryDB    CategoryDB
 	ExpenseDB     ExpenseDB
 	GrantDB       GrantDB
 	SettingsDB    SettingsDB
@@ -61,11 +62,16 @@ func NewDatabasePacket(ctx context.Context, conf *config.Config, dbConn *sqlx.DB
 	if err != nil {
 		return DatabasePacket{}, err
 	}
+	categoryDB, err := NewCategoryDB(ctx, conf, dbConn)
+	if err != nil {
+		return DatabasePacket{}, err
+	}
 	return DatabasePacket{
 		AdminActionDB: adminActionDB,
 		AdminDB:       adminDB,
 		AuthDB:        authDB,
 		BudgetDB:      budgetDB,
+		CategoryDB:    categoryDB,
 		ExpenseDB:     expenseDB,
 		GrantDB:       grantDB,
 		SettingsDB:    settingsDB,

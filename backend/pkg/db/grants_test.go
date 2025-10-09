@@ -19,6 +19,8 @@ import (
 func GetTestGrantDB(t *testing.T) GrantDB {
 	gdb, err := NewGrantDB(context.Background(), conf, dbConn)
 	require.NoError(t, err)
+	_, err = dbConn.ExecContext(t.Context(), "INSERT INTO categories (name, description) VALUES ($1, $2) ON CONFLICT (name) DO NOTHING", "test", "Test category")
+	require.NoError(t, err)
 	return gdb
 }
 
@@ -378,7 +380,7 @@ func Test_GrantDB_FundsUsageOperations(t *testing.T) {
 		Quantity: 1,
 		Price:    "1200.00",
 		Purpose:  "Development work",
-		Category: "Hardware",
+		Category: "test",
 		Date:     time.Now().Truncate(24 * time.Hour), // Truncate to date for comparison
 		TxHash:   null.StringFrom(ethutils.GenRandEVMHash()),
 	}
@@ -392,7 +394,7 @@ func Test_GrantDB_FundsUsageOperations(t *testing.T) {
 		Quantity: 2,
 		Price:    "500.00",
 		Purpose:  "IDE licenses",
-		Category: "Software",
+		Category: "test",
 		Date:     time.Now().AddDate(0, 0, -1).Truncate(24 * time.Hour),
 		TxHash:   null.String{}, // No tx hash
 	}
@@ -444,7 +446,7 @@ func Test_GrantDB_FundsUsageOperations(t *testing.T) {
 		Quantity: 1,
 		Price:    "1500.00",
 		Purpose:  "Updated development work",
-		Category: "Hardware",
+		Category: "test",
 		Date:     time.Now().AddDate(0, 0, 1).Truncate(24 * time.Hour),
 		TxHash:   null.StringFrom(ethutils.GenRandEVMHash()),
 	}
