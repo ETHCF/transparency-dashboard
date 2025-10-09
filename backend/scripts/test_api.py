@@ -375,6 +375,45 @@ class TransparencyDashboardAPI:
             print(f"✗ Failed to get monthly budget allocations: {e}")
             return None
 
+    def create_category(self, category_data: Dict[str, Any]) -> bool:
+        """Create a new category."""
+        url = f"{self.base_url}/api/v1/categories"
+
+        try:
+            response = self.session.post(url, json=category_data)
+            response.raise_for_status()
+            print(f"✓ Created category: {category_data['name']}")
+            return True
+        except requests.RequestException as e:
+            print(f"✗ Failed to create category: {e} {getattr(e.response, 'text', '')}")
+            return False
+
+    def get_categories(self) -> Optional[list]:
+        """Get all categories."""
+        url = f"{self.base_url}/api/v1/categories"
+
+        try:
+            response = self.session.get(url)
+            response.raise_for_status()
+            result = response.json()
+            return result
+        except requests.RequestException as e:
+            print(f"✗ Failed to get categories: {e}")
+            return None
+
+    def create_expense(self, expense_data: Dict[str, Any]) -> bool:
+        """Create a new expense."""
+        url = f"{self.base_url}/api/v1/expenses"
+
+        try:
+            response = self.session.post(url, json=expense_data)
+            response.raise_for_status()
+            print(f"✓ Created expense: {expense_data['item']} - ${expense_data['price']}")
+            return True
+        except requests.RequestException as e:
+            print(f"✗ Failed to create expense: {e} {getattr(e.response, 'text', '')}")
+            return False
+
 
 def main():
     parser = argparse.ArgumentParser(description="Test the transparency dashboard API")
@@ -559,6 +598,28 @@ def main():
             for disbursement in sample_disbursements:
                 api.create_disbursement(grant_id, disbursement)
 
+            print("   Creating categories for funds usage...")
+            required_categories = [
+                {
+                    "name": "Hardware",
+                    "description": "Physical equipment and devices"
+                },
+                {
+                    "name": "Software",
+                    "description": "Software licenses and subscriptions"
+                },
+                {
+                    "name": "Infrastructure",
+                    "description": "Cloud services and infrastructure costs"
+                },
+                {
+                    "name": "Travel",
+                    "description": "Travel and conference expenses"
+                }
+            ]
+            for category in required_categories:
+                api.create_category(category)
+
             print("   Creating funds usage entries for new grant...")
             sample_funds_usage = [
                 {
@@ -687,23 +748,81 @@ def main():
     test_allocations = [
         {
             "manager": "0x2eDecb91091324e0138EBBBaEd48ce1B2A050428",
-            "category": "Engineering",
+            "category": "Infrastructure",
             "amount": "150000.00"
         },
         {
             "manager": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
-            "category": "Marketing",
+            "category": "Hardware",
             "amount": "80000.00"
         },
         {
             "manager": None,
-            "category": "Operations",
+            "category": "Software",
             "amount": "50000.00"
         }
     ]
 
     for allocation in test_allocations:
         api.create_monthly_budget_allocation(allocation)
+
+    step += 1
+
+    # Step: Create expenses
+    print(f"\n{step}. Creating expenses...")
+    test_expenses = [
+        {
+            "item": "AWS Cloud Services",
+            "quantity": 1,
+            "price": "1250.00",
+            "purpose": "Server hosting for Q1",
+            "category": "Infrastructure",
+            "date": datetime(2025, 1, 15, tzinfo=timezone.utc).isoformat()
+        },
+        {
+            "item": "MacBook Pro M3",
+            "quantity": 2,
+            "price": "1750.00",
+            "purpose": "Development laptops for new team members",
+            "category": "Hardware",
+            "date": datetime(2025, 2, 3, tzinfo=timezone.utc).isoformat()
+        },
+        {
+            "item": "JetBrains All Products Pack",
+            "quantity": 5,
+            "price": "179.80",
+            "purpose": "Annual IDE licenses for development team",
+            "category": "Software",
+            "date": datetime(2025, 2, 20, tzinfo=timezone.utc).isoformat()
+        },
+        {
+            "item": "ETH Denver Conference Pass",
+            "quantity": 3,
+            "price": "800.00",
+            "purpose": "Conference attendance and networking",
+            "category": "Travel",
+            "date": datetime(2025, 3, 5, tzinfo=timezone.utc).isoformat()
+        },
+        {
+            "item": "DigitalOcean Droplets",
+            "quantity": 6,
+            "price": "130.00",
+            "purpose": "Monthly cloud infrastructure costs",
+            "category": "Infrastructure",
+            "date": datetime(2025, 3, 12, tzinfo=timezone.utc).isoformat()
+        },
+        {
+            "item": "External Monitor 32\"",
+            "quantity": 4,
+            "price": "412.50",
+            "purpose": "Workstation setup for remote team",
+            "category": "Hardware",
+            "date": datetime(2025, 3, 18, tzinfo=timezone.utc).isoformat()
+        }
+    ]
+
+    for expense in test_expenses:
+        api.create_expense(expense)
 
     step += 1
 
@@ -739,8 +858,9 @@ def main():
     print("  • Created/managed 1 sample grant with milestones, disbursements, and funds usage entries")
     print(f"  • Added {len(test_assets)} test assets")
     print(f"  • Created {len(test_allocations)} monthly budget allocations")
+    print(f"  • Created {len(test_expenses)} expenses across different categories")
     #print(f"  • Created {len(test_transfers)} test transfers")
-    
+
     return 0
 
 
