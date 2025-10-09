@@ -110,7 +110,7 @@ type UploadReceiptRequest struct {
 }
 
 type SpendingBreakdown struct {
-	Category string  `json:"category" db:"category"`
-	Total    float64 `json:"total" db:"total"`
-	Entries  int     `json:"entries" db:"entries"`
+	Category string `json:"category" db:"category"`
+	Total    string `json:"total" db:"total"`
+	Entries  int    `json:"entries" db:"entries"`
 }

@@ -291,6 +291,84 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /api/v1/breakdown/expenses:
+    get:
+      summary: Get spending breakdown by category
+      description: Returns aggregated spending totals grouped by category for a given date range
+      operationId: getSpendingBreakdown
+      tags:
+        - Expenses
+      parameters:
+        - name: start
+          in: query
+          description: Start date for the breakdown period (inclusive)
+          required: true
+          schema:
+            type: string
+            format: date
+            example: "2024-01-01"
+        - name: end
+          in: query
+          description: End date for the breakdown period (inclusive). If not provided, includes all expenses from start date onwards
+          required: false
+          schema:
+            type: string
+            format: date
+            example: "2024-12-31"
+      responses:
+        '200':
+          description: Successfully retrieved spending breakdown
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    category:
+                      type: string
+                      description: The category of the expense
+                      example: "travel"
+                    total:
+                      type: string
+                      format: decimal
+                      description: The total amount spent in this category
+                      example: "15420.50"
+                    entries:
+                      type: integer
+                      description: The number of expense entries in this category
+                      example: 12
+              examples:
+                success:
+                  summary: Example spending breakdown response
+                  value:
+                    - category: "travel"
+                      total: 15420.50
+                      entries: 12
+                    - category: "software"
+                      total: 8200.00
+                      entries: 5
+                    - category: "hardware"
+                      total: 3450.75
+                      entries: 8
+        '400':
+          description: Bad request - invalid date format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidDate:
+                  summary: Invalid date format
+                  value:
+                    error: "Invalid start date format (expected YYYY-MM-DD)"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /api/v1/expenses:
     get:
       summary: Get expenses
@@ -1975,7 +2053,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateCategoryRequest'
+              $ref: '#/components/schemas/Category'
             examples:
               update_category:
                 summary: Update category description

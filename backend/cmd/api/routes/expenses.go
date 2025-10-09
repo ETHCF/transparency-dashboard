@@ -17,6 +17,40 @@ import (
 
 // Expense management routes
 
+// GET /api/v1/breakdown/expenses - Get spending breakdown by category
+func (rh *RouteHandler) GetSpendingBreakdown(c *gin.Context) {
+	startDateStr := c.Query("start")
+	endDateStr := c.Query("end")
+
+	startDate, err := time.Parse("2006-01-02", startDateStr)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid start date format (expected YYYY-MM-DD)"})
+		return
+	}
+
+	var endDate null.Time
+	if endDateStr != "" {
+		parsedEndDate, err := time.Parse("2006-01-02", endDateStr)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid end date format (expected YYYY-MM-DD)"})
+			return
+		}
+		// Set to next day to make the end date inclusive
+		endDate = null.NewTime(parsedEndDate.AddDate(0, 0, 1), true)
+	} else {
+		endDate = null.NewTime(time.Time{}, false)
+	}
+
+	spending, err := rh.expenseDB.GetSpendingBreakdown(c, startDate, endDate)
+	if err != nil {
+		rh.log.WithError(err).Error("failed to get spending breakdown")
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve spending breakdown"})
+		return
+	}
+
+	c.JSON(http.StatusOK, spending)
+}
+
 // GET /api/v1/expenses - Get expenses with pagination
 func (rh *RouteHandler) GetExpenses(c *gin.Context) {
 	// Parse pagination parameters

@@ -87,6 +87,7 @@ func (rh *RouteHandler) ApplyRoutes(r *gin.Engine) {
 	api.GET("/categories/:name", rh.GetCategoryByName)
 	api.GET("/settings/organization-name", rh.GetOrganizationName)
 	api.GET("/settings/total-funds-raised", rh.GetTotalFundsRaised)
+	api.GET("/breakdown/expenses", rh.GetSpendingBreakdown)
 
 	// Admin routes (require auth middleware)
 	api.GET("/admins", rh.authMiddleware.Handle, rh.GetAdmins)
