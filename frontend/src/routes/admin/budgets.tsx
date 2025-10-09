@@ -122,13 +122,11 @@ const BudgetsAdminPage = () => {
               render={({ field }) => (
                 <SelectField
                   {...field}
-                  options={[
-                    { value: "", label: "Select a category" },
-                    ...categories.map((cat) => ({
-                      value: cat.name,
-                      label: cat.name,
-                    })),
-                  ]}
+                  placeholder="Select a category"
+                  options={categories.map((cat) => ({
+                    value: cat.name,
+                    label: cat.name,
+                  }))}
                 />
               )}
             />
