@@ -13,6 +13,8 @@ const adminNavItems = [
   { label: "Asset", to: "/admin/add-asset" },
   { label: "Transfers", to: "/admin/transfers" },
   { label: "Expenses", to: "/admin/expenses" },
+  { label: "Categories", to: "/admin/categories" },
+  { label: "Budgets", to: "/admin/budgets" },
   { label: "Grants", to: "/admin/grants" },
   { label: "Admins", to: "/admin/admins" },
   { label: "Admin", to: "/admin/add-admin" },
