@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { formatCurrency } from '@/utils/format';
 import { BarChart } from '@/components/charts/BarChart';
 import { useBudgetAllocationsQuery } from '@/services/budgets';
-import { useExpensesQuery } from '@/services/expenses';
+import { useExpenseBreakdownQuery } from '@/services/expenses';
 import { Loader } from '@/components/common/Loader';
 import { ErrorState } from '@/components/common/ErrorState';
 import styles from './BudgetTracker.module.css';
@@ -26,19 +26,43 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
 }) => {
   const [selectedPeriod, setSelectedPeriod] = useState<'monthly' | 'quarterly' | 'annual'>('monthly');
 
+  // Calculate date range based on selected period
+  const dateRange = useMemo(() => {
+    const now = new Date();
+    const start = new Date();
+
+    switch (selectedPeriod) {
+      case 'monthly':
+        start.setMonth(now.getMonth() - 1);
+        break;
+      case 'quarterly':
+        start.setMonth(now.getMonth() - 3);
+        break;
+      case 'annual':
+        start.setFullYear(now.getFullYear() - 1);
+        break;
+    }
+
+    return {
+      start: start.toISOString().split('T')[0], // YYYY-MM-DD format
+      // end: now.toISOString().split('T')[0],
+    };
+  }, [selectedPeriod]);
+
   const budgetAllocationsQuery = useBudgetAllocationsQuery();
-  const expensesQuery = useExpensesQuery({});
+  const expenseBreakdownQuery = useExpenseBreakdownQuery(dateRange);
 
   const budgetData = useMemo(() => {
-    if (!budgetAllocationsQuery.data || !expensesQuery.data) {
+    if (!budgetAllocationsQuery.data || !expenseBreakdownQuery.data) {
       return [];
     }
 
-    // Calculate actual spending per category from expenses
-    const expensesByCategory = expensesQuery.data.reduce((acc, expense) => {
-      const category = expense.category;
-      const total = expense.price * expense.quantity;
-      acc[category] = (acc[category] || 0) + total;
+    // Get period multiplier (budgets are monthly, so multiply for quarterly/annual)
+    const periodMultiplier = selectedPeriod === 'monthly' ? 1 : selectedPeriod === 'quarterly' ? 3 : 12;
+
+    // Calculate actual spending per category from breakdown
+    const expensesByCategory = expenseBreakdownQuery.data.reduce((acc, breakdown) => {
+      acc[breakdown.category] = parseFloat(breakdown.total);
       return acc;
     }, {} as Record<string, number>);
 
@@ -46,13 +70,13 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
     return budgetAllocationsQuery.data.map((allocation) => ({
       id: allocation.id,
       name: allocation.category,
-      budgeted: parseFloat(allocation.amount),
+      budgeted: parseFloat(allocation.amount) * periodMultiplier,
       actual: expensesByCategory[allocation.category] || 0,
-      period: 'monthly' as const,
+      period: selectedPeriod,
       department: allocation.category.toLowerCase().replace(/\s+/g, '-'),
       owner: allocation.manager || undefined,
     }));
-  }, [budgetAllocationsQuery.data, expensesQuery.data]);
+  }, [budgetAllocationsQuery.data, expenseBreakdownQuery.data, selectedPeriod]);
 
   const totals = useMemo(() => {
     const totalBudgeted = budgetData.reduce((sum, cat) => sum + cat.budgeted, 0);
@@ -77,7 +101,7 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
     }));
   }, [budgetData]);
 
-  if (budgetAllocationsQuery.isPending || expensesQuery.isPending) {
+  if (budgetAllocationsQuery.isPending || expenseBreakdownQuery.isPending) {
     return <Loader label="Loading budget data" />;
   }
 
@@ -90,11 +114,11 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
     );
   }
 
-  if (expensesQuery.isError) {
+  if (expenseBreakdownQuery.isError) {
     return (
       <ErrorState
-        title="Unable to load expenses"
-        description={expensesQuery.error?.message}
+        title="Unable to load expense breakdown"
+        description={expenseBreakdownQuery.error?.message}
       />
     );
   }

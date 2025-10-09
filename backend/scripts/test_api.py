@@ -777,7 +777,7 @@ def main():
             "price": "1250.00",
             "purpose": "Server hosting for Q1",
             "category": "Infrastructure",
-            "date": datetime(2025, 1, 15, tzinfo=timezone.utc).isoformat()
+            "date": datetime.now(timezone.utc).isoformat()
         },
         {
             "item": "MacBook Pro M3",
@@ -785,7 +785,7 @@ def main():
             "price": "1750.00",
             "purpose": "Development laptops for new team members",
             "category": "Hardware",
-            "date": datetime(2025, 2, 3, tzinfo=timezone.utc).isoformat()
+            "date": datetime.now(timezone.utc).isoformat()
         },
         {
             "item": "JetBrains All Products Pack",
@@ -793,7 +793,7 @@ def main():
             "price": "179.80",
             "purpose": "Annual IDE licenses for development team",
             "category": "Software",
-            "date": datetime(2025, 2, 20, tzinfo=timezone.utc).isoformat()
+            "date": datetime.now(timezone.utc).isoformat()
         },
         {
             "item": "ETH Denver Conference Pass",
@@ -801,7 +801,7 @@ def main():
             "price": "800.00",
             "purpose": "Conference attendance and networking",
             "category": "Travel",
-            "date": datetime(2025, 3, 5, tzinfo=timezone.utc).isoformat()
+            "date": datetime.now(timezone.utc).isoformat()
         },
         {
             "item": "DigitalOcean Droplets",
@@ -809,7 +809,7 @@ def main():
             "price": "130.00",
             "purpose": "Monthly cloud infrastructure costs",
             "category": "Infrastructure",
-            "date": datetime(2025, 3, 12, tzinfo=timezone.utc).isoformat()
+            "date": datetime.now(timezone.utc).isoformat()
         },
         {
             "item": "External Monitor 32\"",
@@ -817,7 +817,7 @@ def main():
             "price": "412.50",
             "purpose": "Workstation setup for remote team",
             "category": "Hardware",
-            "date": datetime(2025, 3, 18, tzinfo=timezone.utc).isoformat()
+            "date": datetime.now(timezone.utc).isoformat()
         }
     ]
 
