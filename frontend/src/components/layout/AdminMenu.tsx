@@ -61,6 +61,9 @@ export const AdminMenu = (): JSX.Element => {
           <Link to="/admin/expenses" role="menuitem" className={styles.item}>
             Expenses
           </Link>
+          <Link to="/admin/categories" role="menuitem" className={styles.item}>
+            Categories
+          </Link>
           <Link to="/admin/grants" role="menuitem" className={styles.item}>
             Grants
           </Link>
@@ -72,6 +75,9 @@ export const AdminMenu = (): JSX.Element => {
           </Link>
           <Link to="/admin/transfers" role="menuitem" className={styles.item}>
             Transfers
+          </Link>
+          <Link to="/admin/budgets" role="menuitem" className={styles.item}>
+            Budget Allocations
           </Link>
           <Link to="/admin/add-admin" role="menuitem" className={styles.item}>
             Add Admin

@@ -407,10 +407,7 @@ const DashboardPage = () => {
       {/* Budget Tracker - Only show to admins */}
       {hasAdminAccess && (
         <PageSection title="Budget Management" description="Track spending against budget allocations">
-          <BudgetTracker
-            showVariance={true}
-            enableEdit={hasAdminAccess}
-          />
+          <BudgetTracker showVariance={true} />
         </PageSection>
       )}
 

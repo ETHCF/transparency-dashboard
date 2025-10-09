@@ -1,6 +1,10 @@
 import { useState, useMemo } from 'react';
 import { formatCurrency } from '@/utils/format';
 import { BarChart } from '@/components/charts/BarChart';
+import { useBudgetAllocationsQuery } from '@/services/budgets';
+import { useExpenseBreakdownQuery } from '@/services/expenses';
+import { Loader } from '@/components/common/Loader';
+import { ErrorState } from '@/components/common/ErrorState';
 import styles from './BudgetTracker.module.css';
 
 interface BudgetCategory {
@@ -14,43 +18,65 @@ interface BudgetCategory {
 }
 
 interface BudgetTrackerProps {
-  categories?: BudgetCategory[];
   showVariance?: boolean;
-  enableEdit?: boolean;
 }
 
-// Generate mock budget data
-const generateMockBudgetData = (): BudgetCategory[] => {
-  const categories = [
-    { name: 'Engineering', budget: 250000, variance: 0.92 },
-    { name: 'Marketing', budget: 75000, variance: 1.15 },
-    { name: 'Operations', budget: 50000, variance: 0.88 },
-    { name: 'Legal & Compliance', budget: 30000, variance: 0.95 },
-    { name: 'Infrastructure', budget: 45000, variance: 1.08 },
-    { name: 'Grants & Bounties', budget: 100000, variance: 0.76 },
-    { name: 'Community', budget: 25000, variance: 0.90 },
-    { name: 'Research', budget: 60000, variance: 0.85 },
-  ];
-
-  return categories.map((cat, index) => ({
-    id: `cat-${index}`,
-    name: cat.name,
-    budgeted: cat.budget,
-    actual: cat.budget * cat.variance,
-    period: 'monthly' as const,
-    department: cat.name.toLowerCase().replace(/\s+/g, '-'),
-    owner: ['alice.eth', 'bob.eth', 'charlie.eth'][index % 3],
-  }));
-};
-
 export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
-  categories = generateMockBudgetData(),
   showVariance = true,
-  enableEdit = false,
 }) => {
   const [selectedPeriod, setSelectedPeriod] = useState<'monthly' | 'quarterly' | 'annual'>('monthly');
-  const [editingCategory, setEditingCategory] = useState<string | null>(null);
-  const [budgetData, setBudgetData] = useState(categories);
+
+  // Calculate date range based on selected period
+  const dateRange = useMemo(() => {
+    const now = new Date();
+    const start = new Date();
+
+    switch (selectedPeriod) {
+      case 'monthly':
+        start.setMonth(now.getMonth() - 1);
+        break;
+      case 'quarterly':
+        start.setMonth(now.getMonth() - 3);
+        break;
+      case 'annual':
+        start.setFullYear(now.getFullYear() - 1);
+        break;
+    }
+
+    return {
+      start: start.toISOString().split('T')[0], // YYYY-MM-DD format
+      // end: now.toISOString().split('T')[0],
+    };
+  }, [selectedPeriod]);
+
+  const budgetAllocationsQuery = useBudgetAllocationsQuery();
+  const expenseBreakdownQuery = useExpenseBreakdownQuery(dateRange);
+
+  const budgetData = useMemo(() => {
+    if (!budgetAllocationsQuery.data || !expenseBreakdownQuery.data) {
+      return [];
+    }
+
+    // Get period multiplier (budgets are monthly, so multiply for quarterly/annual)
+    const periodMultiplier = selectedPeriod === 'monthly' ? 1 : selectedPeriod === 'quarterly' ? 3 : 12;
+
+    // Calculate actual spending per category from breakdown
+    const expensesByCategory = expenseBreakdownQuery.data.reduce((acc, breakdown) => {
+      acc[breakdown.category] = parseFloat(breakdown.total);
+      return acc;
+    }, {} as Record<string, number>);
+
+    // Map budget allocations to BudgetCategory format
+    return budgetAllocationsQuery.data.map((allocation) => ({
+      id: allocation.id,
+      name: allocation.category,
+      budgeted: parseFloat(allocation.amount) * periodMultiplier,
+      actual: expensesByCategory[allocation.category] || 0,
+      period: selectedPeriod,
+      department: allocation.category.toLowerCase().replace(/\s+/g, '-'),
+      owner: allocation.manager || undefined,
+    }));
+  }, [budgetAllocationsQuery.data, expenseBreakdownQuery.data, selectedPeriod]);
 
   const totals = useMemo(() => {
     const totalBudgeted = budgetData.reduce((sum, cat) => sum + cat.budgeted, 0);
@@ -75,14 +101,27 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
     }));
   }, [budgetData]);
 
-  const handleEditBudget = (categoryId: string, newBudget: number) => {
-    setBudgetData(prev =>
-      prev.map(cat =>
-        cat.id === categoryId ? { ...cat, budgeted: newBudget } : cat
-      )
+  if (budgetAllocationsQuery.isPending || expenseBreakdownQuery.isPending) {
+    return <Loader label="Loading budget data" />;
+  }
+
+  if (budgetAllocationsQuery.isError) {
+    return (
+      <ErrorState
+        title="Unable to load budget allocations"
+        description={budgetAllocationsQuery.error?.message}
+      />
     );
-    setEditingCategory(null);
-  };
+  }
+
+  if (expenseBreakdownQuery.isError) {
+    return (
+      <ErrorState
+        title="Unable to load expense breakdown"
+        description={expenseBreakdownQuery.error?.message}
+      />
+    );
+  }
 
   const getVarianceColor = (variance: number) => {
     if (variance > 0.1) return styles.overBudget;
@@ -104,11 +143,6 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
             <option value="quarterly">Quarterly</option>
             <option value="annual">Annual</option>
           </select>
-          {enableEdit && (
-            <button className={styles.addBtn}>
-              + Add Category
-            </button>
-          )}
         </div>
       </div>
 
@@ -158,7 +192,6 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
               <th>Actual</th>
               <th>Variance</th>
               <th>% of Budget</th>
-              {enableEdit && <th>Actions</th>}
             </tr>
           </thead>
           <tbody>
@@ -178,22 +211,7 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
                     </div>
                   </td>
                   <td className={styles.amount}>
-                    {editingCategory === category.id ? (
-                      <input
-                        type="number"
-                        className={styles.editInput}
-                        defaultValue={category.budgeted}
-                        onBlur={(e) => handleEditBudget(category.id, Number(e.target.value))}
-                        onKeyPress={(e) => {
-                          if (e.key === 'Enter') {
-                            handleEditBudget(category.id, Number(e.currentTarget.value));
-                          }
-                        }}
-                        autoFocus
-                      />
-                    ) : (
-                      formatCurrency(category.budgeted)
-                    )}
+                    {formatCurrency(category.budgeted)}
                   </td>
                   <td className={styles.amount}>
                     {formatCurrency(category.actual)}
@@ -218,19 +236,6 @@ export const BudgetTracker: React.FC<BudgetTrackerProps> = ({
                       {budgetPercent.toFixed(1)}%
                     </span>
                   </td>
-                  {enableEdit && (
-                    <td className={styles.actions}>
-                      <button
-                        className={styles.editBtn}
-                        onClick={() => setEditingCategory(category.id)}
-                      >
-                        ✏️
-                      </button>
-                      <button className={styles.deleteBtn}>
-                        🗑️
-                      </button>
-                    </td>
-                  )}
                 </tr>
               );
             })}

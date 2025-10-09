@@ -291,6 +291,84 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /api/v1/breakdown/expenses:
+    get:
+      summary: Get spending breakdown by category
+      description: Returns aggregated spending totals grouped by category for a given date range
+      operationId: getSpendingBreakdown
+      tags:
+        - Expenses
+      parameters:
+        - name: start
+          in: query
+          description: Start date for the breakdown period (inclusive)
+          required: true
+          schema:
+            type: string
+            format: date
+            example: "2024-01-01"
+        - name: end
+          in: query
+          description: End date for the breakdown period (inclusive). If not provided, includes all expenses from start date onwards
+          required: false
+          schema:
+            type: string
+            format: date
+            example: "2024-12-31"
+      responses:
+        '200':
+          description: Successfully retrieved spending breakdown
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    category:
+                      type: string
+                      description: The category of the expense
+                      example: "travel"
+                    total:
+                      type: string
+                      format: decimal
+                      description: The total amount spent in this category
+                      example: "15420.50"
+                    entries:
+                      type: integer
+                      description: The number of expense entries in this category
+                      example: 12
+              examples:
+                success:
+                  summary: Example spending breakdown response
+                  value:
+                    - category: "travel"
+                      total: 15420.50
+                      entries: 12
+                    - category: "software"
+                      total: 8200.00
+                      entries: 5
+                    - category: "hardware"
+                      total: 3450.75
+                      entries: 8
+        '400':
+          description: Bad request - invalid date format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                invalidDate:
+                  summary: Invalid date format
+                  value:
+                    error: "Invalid start date format (expected YYYY-MM-DD)"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /api/v1/expenses:
     get:
       summary: Get expenses
@@ -1651,6 +1729,413 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /api/v1/budgets/allocations:
+    get:
+      summary: Get monthly budget allocations
+      description: Returns a list of all monthly budget allocations
+      operationId: getMonthlyBudgetAllocations
+      tags:
+        - Budgets
+      responses:
+        '200':
+          description: Successfully retrieved monthly budget allocations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MonthlyBudgetAllocation'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create monthly budget allocation
+      description: Creates a new monthly budget allocation
+      operationId: createMonthlyBudgetAllocation
+      tags:
+        - Budgets
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMonthlyBudgetAllocation'
+            examples:
+              with_manager:
+                summary: Allocation with manager
+                value:
+                  manager: "0x742d35cc6670c02bb4bbecbb5fb95e8b7d7b36bf"
+                  category: "Research"
+                  amount: "25000.00"
+      responses:
+        '201':
+          description: Monthly budget allocation created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                    example: "550e8400-e29b-41d4-a716-446655440000"
+        '400':
+          description: Bad request - invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/budgets/allocations/{id}:
+    put:
+      summary: Update monthly budget allocation
+      description: Updates an existing monthly budget allocation
+      operationId: updateMonthlyBudgetAllocation
+      tags:
+        - Budgets
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The monthly budget allocation ID
+          schema:
+            type: string
+            format: uuid
+            example: "550e8400-e29b-41d4-a716-446655440000"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                manager:
+                  type: string
+                  pattern: '^(0x)?[0-9a-f]{40}$'
+                  description: Ethereum address of the budget manager
+                  example: "0x742d35cc6670c02bb4bbecbb5fb95e8b7d7b36bf"
+                  nullable: true
+                category:
+                  type: string
+                  description: Budget category
+                  example: "Research"
+                amount:
+                  type: string
+                  description: Allocation amount (as string to preserve precision)
+                  example: "25000.00"
+              required:
+                - manager
+                - category
+                - amount
+      responses:
+        '200':
+          description: Monthly budget allocation updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MonthlyBudgetAllocation'
+        '400':
+          description: Bad request - invalid input or ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Monthly budget allocation not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete monthly budget allocation
+      description: Deletes a monthly budget allocation
+      operationId: deleteMonthlyBudgetAllocation
+      tags:
+        - Budgets
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The monthly budget allocation ID
+          schema:
+            type: string
+            format: uuid
+            example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        '200':
+          description: Monthly budget allocation deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Monthly budget allocation deleted successfully"
+        '400':
+          description: Bad request - invalid ID format
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Monthly budget allocation not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/categories:
+    get:
+      summary: Get categories
+      description: Returns a list of all expense categories
+      operationId: getCategories
+      tags:
+        - Categories
+      responses:
+        '200':
+          description: Successfully retrieved categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      summary: Create category
+      description: Creates a new expense category
+      operationId: createCategory
+      tags:
+        - Categories
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+            examples:
+              create_category:
+                summary: Create a new category
+                value:
+                  name: "Research"
+                  description: "Research and development expenses"
+      responses:
+        '201':
+          description: Category created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '400':
+          description: Bad request - invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/categories/{name}:
+    get:
+      summary: Get category by name
+      description: Returns a specific category by its name
+      operationId: getCategoryByName
+      tags:
+        - Categories
+      parameters:
+        - name: name
+          in: path
+          required: true
+          description: The category name
+          schema:
+            type: string
+            example: "Research"
+      responses:
+        '200':
+          description: Successfully retrieved category
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '404':
+          description: Category not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      summary: Update category
+      description: Updates an existing category's description
+      operationId: updateCategory
+      tags:
+        - Categories
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: name
+          in: path
+          required: true
+          description: The category name
+          schema:
+            type: string
+            example: "Research"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Category'
+            examples:
+              update_category:
+                summary: Update category description
+                value:
+                  description: "Updated research and development expenses"
+      responses:
+        '200':
+          description: Category updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '400':
+          description: Bad request - invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Category not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      summary: Delete category
+      description: Deletes a category
+      operationId: deleteCategory
+      tags:
+        - Categories
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: name
+          in: path
+          required: true
+          description: The category name
+          schema:
+            type: string
+            example: "Research"
+      responses:
+        '200':
+          description: Category deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Category deleted successfully"
+        '401':
+          description: Unauthorized - invalid or missing token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Category not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /api/v1/admin-actions:
     get:
       summary: Get admin actions
@@ -1675,7 +2160,7 @@ paths:
           required: false
           schema:
             type: string
-            enum: [create_expense, update_expense, delete_expense, upload_receipt, delete_receipt, create_grant, update_grant, update_milestones, add_admin, remove_admin, update_transfer_party]
+            enum: [create_expense, update_expense, delete_expense, upload_receipt, delete_receipt, create_grant, update_grant, update_milestones, add_admin, remove_admin, update_transfer_party, create_monthly_budget, update_monthly_budget, delete_monthly_budget, create_monthly_budget_allocation, update_monthly_budget_allocation, delete_monthly_budget_allocation]
         - name: limit
           in: query
           description: Maximum number of actions to return
@@ -2069,12 +2554,12 @@ components:
           example: "John Doe"
         action:
           type: string
-          enum: [create_expense, update_expense, delete_expense, upload_receipt, delete_receipt, create_grant, update_grant, update_milestones, add_admin, remove_admin, update_transfer_party]
+          enum: [create_expense, update_expense, delete_expense, upload_receipt, delete_receipt, create_grant, update_grant, update_milestones, add_admin, remove_admin, update_transfer_party, create_monthly_budget, update_monthly_budget, delete_monthly_budget, create_monthly_budget_allocation, update_monthly_budget_allocation, delete_monthly_budget_allocation]
           description: Type of action performed
           example: "create_expense"
         resourceType:
           type: string
-          enum: [expense, receipt, grant, admin, transfer_party]
+          enum: [expense, receipt, grant, admin, transfer_party, monthly_budget, monthly_budget_allocation]
           description: Type of resource the action was performed on
           example: "expense"
         resourceId:
@@ -2536,6 +3021,143 @@ components:
       required:
         - milestones
 
+    MonthlyBudget:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the monthly budget
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        month:
+          type: string
+          format: date
+          description: Month for the budget (YYYY-MM-DD format)
+          example: "2023-12-01"
+        amount:
+          type: string
+          description: Budget amount (as string to preserve precision)
+          example: "50000.00"
+        category:
+          type: string
+          description: Budget category
+          example: "Operations"
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the budget was created
+          example: "2023-12-15T10:30:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the budget was last updated
+          example: "2023-12-15T10:30:00Z"
+      required:
+        - id
+        - month
+        - amount
+        - category
+        - createdAt
+        - updatedAt
+
+    CreateMonthlyBudget:
+      type: object
+      properties:
+        month:
+          type: string
+          format: date
+          description: Month for the budget (YYYY-MM-DD format)
+          example: "2023-12-01"
+        amount:
+          type: string
+          description: Budget amount (as string to preserve precision)
+          example: "50000.00"
+        category:
+          type: string
+          description: Budget category
+          example: "Operations"
+      required:
+        - month
+        - amount
+        - category
+
+    MonthlyBudgetAllocation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the budget allocation
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        manager:
+          type: string
+          pattern: '^(0x)?[0-9a-f]{40}$'
+          description: Ethereum address of the budget manager
+          example: "0x742d35cc6670c02bb4bbecbb5fb95e8b7d7b36bf"
+          nullable: true
+        category:
+          type: string
+          description: Budget category
+          example: "Research"
+        amount:
+          type: string
+          description: Allocation amount (as string to preserve precision)
+          example: "25000.00"
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the allocation was created
+          example: "2023-12-15T10:30:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the allocation was last updated
+          example: "2023-12-15T10:30:00Z"
+      required:
+        - id
+        - manager
+        - category
+        - amount
+        - createdAt
+        - updatedAt
+
+    CreateMonthlyBudgetAllocation:
+      type: object
+      properties:
+        manager:
+          type: string
+          pattern: '^(0x)?[0-9a-f]{40}$'
+          description: Ethereum address of the budget manager
+          example: "0x742d35cc6670c02bb4bbecbb5fb95e8b7d7b36bf"
+          nullable: true
+        category:
+          type: string
+          description: Budget category
+          example: "Research"
+        amount:
+          type: string
+          description: Allocation amount (as string to preserve precision)
+          example: "25000.00"
+      required:
+        - manager
+        - category
+        - amount
+
+    Category:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Category name (serves as unique identifier)
+          example: "Research"
+        description:
+          type: string
+          description: Category description
+          example: "Research and development expenses"
+      required:
+        - name
+        - description
+
   securitySchemes:
     bearerAuth:
       type: http
@@ -2547,6 +3169,8 @@ tags:
     description: Authentication endpoints
   - name: Admins
     description: Administrator management endpoints
+  - name: Budgets
+    description: Budget management endpoints for monthly budgets and allocations
   - name: Expenses
     description: Expense management endpoints
   - name: Grants

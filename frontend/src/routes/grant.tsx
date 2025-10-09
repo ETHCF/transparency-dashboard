@@ -29,7 +29,7 @@ function GrantsPage() {
   }, [grants, statusFilter]);
 
   const totalGrantValue = useMemo(() => {
-    return grants.reduce((sum, grant) => sum + (grant.amount || 0), 0);
+    return grants.reduce((sum, grant) => sum + (grant.totalGrantAmount || 0), 0);
   }, [grants]);
 
   const totalDisbursed = useMemo(() => {
@@ -110,8 +110,8 @@ function GrantsPage() {
           </thead>
           <tbody>
             {filteredGrants.map((grant) => {
-              const progress = grant.amount ? (grant.amountGivenSoFar / grant.amount) * 100 : 0;
-              const endDate = grant.endDate ? new Date(grant.endDate) : null;
+              const progress = grant.totalGrantAmount ? (grant.amountGivenSoFar / grant.totalGrantAmount) * 100 : 0;
+              const endDate = grant.expectedCompletionDate ? new Date(grant.expectedCompletionDate) : null;
               const isOverdue = endDate && endDate < new Date() && grant.status !== "completed";
 
               return (
@@ -130,7 +130,7 @@ function GrantsPage() {
                       </div>
                     </div>
                   </td>
-                  <td className={styles.amount}>{formatCurrency(grant.amount)}</td>
+                  <td className={styles.amount}>{formatCurrency(grant.totalGrantAmount)}</td>
                   <td className={styles.amount}>{formatCurrency(grant.amountGivenSoFar)}</td>
                   <td>
                     <div className={styles.progressContainer}>

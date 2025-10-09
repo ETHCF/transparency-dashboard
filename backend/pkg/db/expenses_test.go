@@ -20,6 +20,8 @@ import (
 func GetTestExpenseDB(t *testing.T) ExpenseDB {
 	edb, err := NewExpenseDB(context.Background(), conf, dbConn)
 	require.NoError(t, err)
+	_, err = dbConn.ExecContext(t.Context(), "INSERT INTO categories (name, description) VALUES ($1, $2) ON CONFLICT (name) DO NOTHING", "test", "Test category")
+	require.NoError(t, err)
 	return edb
 }
 
@@ -32,7 +34,7 @@ func Test_ExpenseDB_CreateAndGetExpenses(t *testing.T) {
 			Quantity:  5,
 			Price:     "100.50",
 			Purpose:   null.StringFrom("Testing purposes"),
-			Category:  "office",
+			Category:  "test",
 			Date:      time.Now(),
 			TxHash:    null.StringFrom(ethutils.GenRandEVMHash()),
 			CreatedAt: time.Now(),
@@ -73,7 +75,7 @@ func Test_ExpenseDB_CreateExpenseNullTxHash(t *testing.T) {
 			Quantity:  5,
 			Price:     "100.50",
 			Purpose:   null.StringFrom("Testing purposes"),
-			Category:  "office",
+			Category:  "test",
 			Date:      time.Now(),
 			TxHash:    null.String{},
 			CreatedAt: time.Now(),
@@ -103,7 +105,7 @@ func Test_ExpenseDB_GetExpenseByID(t *testing.T) {
 			Quantity:  3,
 			Price:     "75.25",
 			Purpose:   null.StringFrom("Testing get by ID"),
-			Category:  "travel",
+			Category:  "test",
 			Date:      time.Now(),
 			TxHash:    null.StringFrom(ethutils.GenRandEVMHash()),
 			CreatedAt: time.Now(),
@@ -136,7 +138,7 @@ func Test_ExpenseDB_UpdateExpense(t *testing.T) {
 			Quantity:  2,
 			Price:     "50.00",
 			Purpose:   null.StringFrom("Testing update"),
-			Category:  "legal",
+			Category:  "test",
 			Date:      time.Now(),
 			TxHash:    null.StringFrom(ethutils.GenRandEVMHash()),
 			CreatedAt: time.Now(),
@@ -179,7 +181,7 @@ func Test_ExpenseDB_ExpenseExists(t *testing.T) {
 			Quantity:  1,
 			Price:     "25.00",
 			Purpose:   null.StringFrom("Testing exists"),
-			Category:  "technology",
+			Category:  "test",
 			Date:      time.Now(),
 			TxHash:    null.StringFrom(ethutils.GenRandEVMHash()),
 			CreatedAt: time.Now(),
@@ -215,7 +217,7 @@ func Test_ExpenseDB_DeleteExpense(t *testing.T) {
 			Quantity:  1,
 			Price:     "15.00",
 			Purpose:   null.StringFrom("Testing delete"),
-			Category:  "other",
+			Category:  "test",
 			Date:      time.Now(),
 			TxHash:    null.StringFrom(ethutils.GenRandEVMHash()),
 			CreatedAt: time.Now(),
@@ -257,7 +259,7 @@ func Test_ExpenseDB_ReceiptOperations(t *testing.T) {
 			Quantity:  1,
 			Price:     "15.00",
 			Purpose:   null.StringFrom("Testing delete"),
-			Category:  "other",
+			Category:  "test",
 			Date:      time.Now(),
 			TxHash:    null.StringFrom(ethutils.GenRandEVMHash()),
 			CreatedAt: time.Now(),

@@ -7,6 +7,9 @@ This script demonstrates how to:
 2. Add transactions/transfer parties
 3. Add wallets (transfer parties)
 4. Set the organization name
+5. Create grants with milestones, disbursements, and funds usage
+6. Add assets
+7. Create monthly budgets and budget allocations
 
 Usage:
     python test_api.py --private-key <your_private_key> --base-url http://localhost:8080
@@ -21,7 +24,6 @@ from eth_account.signers.local import LocalAccount
 
 from web3 import Web3
 from eth_account.messages import encode_defunct
-import json
 
 
 class TransparencyDashboardAPI:
@@ -346,6 +348,73 @@ class TransparencyDashboardAPI:
             return None
 
 
+    def create_monthly_budget_allocation(self, allocation_data: Dict[str, Any]) -> Optional[str]:
+        """Create a new monthly budget allocation."""
+        url = f"{self.base_url}/api/v1/budgets/allocations"
+
+        try:
+            response = self.session.post(url, json=allocation_data)
+            response.raise_for_status()
+            result = response.json()
+            print(f"✓ Created monthly budget allocation: {allocation_data['category']} (ID: {result.get('id')})")
+            return result.get("id")
+        except requests.RequestException as e:
+            print(f"✗ Failed to create monthly budget allocation: {e} {getattr(e.response, 'text', '')}")
+            return None
+
+    def get_monthly_budget_allocations(self) -> Optional[list]:
+        """Get all monthly budget allocations."""
+        url = f"{self.base_url}/api/v1/budgets/allocations"
+
+        try:
+            response = self.session.get(url)
+            response.raise_for_status()
+            result = response.json()
+            return result
+        except requests.RequestException as e:
+            print(f"✗ Failed to get monthly budget allocations: {e}")
+            return None
+
+    def create_category(self, category_data: Dict[str, Any]) -> bool:
+        """Create a new category."""
+        url = f"{self.base_url}/api/v1/categories"
+
+        try:
+            response = self.session.post(url, json=category_data)
+            response.raise_for_status()
+            print(f"✓ Created category: {category_data['name']}")
+            return True
+        except requests.RequestException as e:
+            print(f"✗ Failed to create category: {e} {getattr(e.response, 'text', '')}")
+            return False
+
+    def get_categories(self) -> Optional[list]:
+        """Get all categories."""
+        url = f"{self.base_url}/api/v1/categories"
+
+        try:
+            response = self.session.get(url)
+            response.raise_for_status()
+            result = response.json()
+            return result
+        except requests.RequestException as e:
+            print(f"✗ Failed to get categories: {e}")
+            return None
+
+    def create_expense(self, expense_data: Dict[str, Any]) -> bool:
+        """Create a new expense."""
+        url = f"{self.base_url}/api/v1/expenses"
+
+        try:
+            response = self.session.post(url, json=expense_data)
+            response.raise_for_status()
+            print(f"✓ Created expense: {expense_data['item']} - ${expense_data['price']}")
+            return True
+        except requests.RequestException as e:
+            print(f"✗ Failed to create expense: {e} {getattr(e.response, 'text', '')}")
+            return False
+
+
 def main():
     parser = argparse.ArgumentParser(description="Test the transparency dashboard API")
     # 0x11A282e7bB9bE921313dDB6DAa2afbff920231C9, do not put any funds in this address, public testing private key
@@ -529,6 +598,28 @@ def main():
             for disbursement in sample_disbursements:
                 api.create_disbursement(grant_id, disbursement)
 
+            print("   Creating categories for funds usage...")
+            required_categories = [
+                {
+                    "name": "Hardware",
+                    "description": "Physical equipment and devices"
+                },
+                {
+                    "name": "Software",
+                    "description": "Software licenses and subscriptions"
+                },
+                {
+                    "name": "Infrastructure",
+                    "description": "Cloud services and infrastructure costs"
+                },
+                {
+                    "name": "Travel",
+                    "description": "Travel and conference expenses"
+                }
+            ]
+            for category in required_categories:
+                api.create_category(category)
+
             print("   Creating funds usage entries for new grant...")
             sample_funds_usage = [
                 {
@@ -652,6 +743,89 @@ def main():
 
     step += 1
 
+    # Step: Create monthly budget allocations
+    print(f"\n{step}. Creating monthly budget allocations...")
+    test_allocations = [
+        {
+            "manager": "0x2eDecb91091324e0138EBBBaEd48ce1B2A050428",
+            "category": "Infrastructure",
+            "amount": "150000.00"
+        },
+        {
+            "manager": "0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045",
+            "category": "Hardware",
+            "amount": "80000.00"
+        },
+        {
+            "manager": None,
+            "category": "Software",
+            "amount": "50000.00"
+        }
+    ]
+
+    for allocation in test_allocations:
+        api.create_monthly_budget_allocation(allocation)
+
+    step += 1
+
+    # Step: Create expenses
+    print(f"\n{step}. Creating expenses...")
+    test_expenses = [
+        {
+            "item": "AWS Cloud Services",
+            "quantity": 1,
+            "price": "1250.00",
+            "purpose": "Server hosting for Q1",
+            "category": "Infrastructure",
+            "date": datetime.now(timezone.utc).isoformat()
+        },
+        {
+            "item": "MacBook Pro M3",
+            "quantity": 2,
+            "price": "1750.00",
+            "purpose": "Development laptops for new team members",
+            "category": "Hardware",
+            "date": datetime.now(timezone.utc).isoformat()
+        },
+        {
+            "item": "JetBrains All Products Pack",
+            "quantity": 5,
+            "price": "179.80",
+            "purpose": "Annual IDE licenses for development team",
+            "category": "Software",
+            "date": datetime.now(timezone.utc).isoformat()
+        },
+        {
+            "item": "ETH Denver Conference Pass",
+            "quantity": 3,
+            "price": "800.00",
+            "purpose": "Conference attendance and networking",
+            "category": "Travel",
+            "date": datetime.now(timezone.utc).isoformat()
+        },
+        {
+            "item": "DigitalOcean Droplets",
+            "quantity": 6,
+            "price": "130.00",
+            "purpose": "Monthly cloud infrastructure costs",
+            "category": "Infrastructure",
+            "date": datetime.now(timezone.utc).isoformat()
+        },
+        {
+            "item": "External Monitor 32\"",
+            "quantity": 4,
+            "price": "412.50",
+            "purpose": "Workstation setup for remote team",
+            "category": "Hardware",
+            "date": datetime.now(timezone.utc).isoformat()
+        }
+    ]
+
+    for expense in test_expenses:
+        api.create_expense(expense)
+
+    step += 1
+
     # Step: Get some data to verify everything works
     print(f"\n{step}. Fetching data to verify...")
 
@@ -662,13 +836,18 @@ def main():
     transfers = api.get_transfers()
     if transfers:
         print(f"   Found {len(transfers)} transfers")
+
     admins = api.list_admins()
     if admins is not None:
-        print(f"  • Total admins in system: {len(admins)}")
-        for admin in admins:
-            print(f"    - {json.dumps(admin)}")
+        print(f"   Found {len(admins)} admins")
     else:
         print("   Failed to fetch admins")
+
+    allocations = api.get_monthly_budget_allocations()
+    if allocations is not None:
+        print(f"   Found {len(allocations)} monthly budget allocations")
+    else:
+        print("   Failed to fetch monthly budget allocations")
 
     print("\n✅ API test completed successfully!")
     print("-" * 60)
@@ -678,8 +857,10 @@ def main():
     print(f"  • Added {len(test_wallets)} transfer parties")
     print("  • Created/managed 1 sample grant with milestones, disbursements, and funds usage entries")
     print(f"  • Added {len(test_assets)} test assets")
+    print(f"  • Created {len(test_allocations)} monthly budget allocations")
+    print(f"  • Created {len(test_expenses)} expenses across different categories")
     #print(f"  • Created {len(test_transfers)} test transfers")
-    
+
     return 0
 
 

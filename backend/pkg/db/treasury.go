@@ -6,10 +6,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/numbergroup/errors"
 	"github.com/google/uuid"
 	"github.com/innodv/psql"
 	"github.com/jmoiron/sqlx"
+	"github.com/numbergroup/errors"
 	"github.com/sirupsen/logrus"
 
 	"github.com/ETHCF/transparency-dashboard/backend/pkg/config"
@@ -170,7 +170,7 @@ func NewTreasuryDB(ctx context.Context, conf *config.Config, dbConn *sqlx.DB, se
 	FROM transfers t
 		LEFT JOIN transfer_parties wf ON (t.payer_address = wf.address)
 		LEFT JOIN transfer_parties wt ON (t.payee_address = wt.address)
-		INNER JOIN assets a ON (t.asset = a.address)`
+		LEFT JOIN assets a ON (t.asset = a.address)`
 
 	getTransfers, err := dbConn.PreparexContext(ctx, getTransfersQuery+" LIMIT $1 OFFSET $2")
 	if err != nil {

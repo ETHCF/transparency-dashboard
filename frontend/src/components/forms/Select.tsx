@@ -22,28 +22,33 @@ export const SelectField = ({
   onChange,
   placeholder,
   options,
-}: SelectFieldProps): JSX.Element => (
-  <SelectPrimitive.Root value={value} onValueChange={onChange}>
-    <SelectPrimitive.Trigger className={clsx(styles.trigger)}>
-      <SelectPrimitive.Value placeholder={placeholder} />
-      <SelectPrimitive.Icon>▾</SelectPrimitive.Icon>
-    </SelectPrimitive.Trigger>
-    <SelectPrimitive.Portal>
-      <SelectPrimitive.Content className={styles.content}>
-        <SelectPrimitive.Viewport>
-          {options.map((option) => (
-            <SelectPrimitive.Item
-              key={option.value}
-              value={option.value}
-              className={styles.item}
-            >
-              <SelectPrimitive.ItemText>
-                {option.label}
-              </SelectPrimitive.ItemText>
-            </SelectPrimitive.Item>
-          ))}
-        </SelectPrimitive.Viewport>
-      </SelectPrimitive.Content>
-    </SelectPrimitive.Portal>
-  </SelectPrimitive.Root>
-);
+}: SelectFieldProps): JSX.Element => {
+  // Convert empty string to undefined for Radix UI Select
+  const selectValue = value === "" ? undefined : value;
+
+  return (
+    <SelectPrimitive.Root value={selectValue} onValueChange={onChange}>
+      <SelectPrimitive.Trigger className={clsx(styles.trigger)}>
+        <SelectPrimitive.Value placeholder={placeholder} />
+        <SelectPrimitive.Icon>▾</SelectPrimitive.Icon>
+      </SelectPrimitive.Trigger>
+      <SelectPrimitive.Portal>
+        <SelectPrimitive.Content className={styles.content}>
+          <SelectPrimitive.Viewport>
+            {options.map((option) => (
+              <SelectPrimitive.Item
+                key={option.value}
+                value={option.value}
+                className={styles.item}
+              >
+                <SelectPrimitive.ItemText>
+                  {option.label}
+                </SelectPrimitive.ItemText>
+              </SelectPrimitive.Item>
+            ))}
+          </SelectPrimitive.Viewport>
+        </SelectPrimitive.Content>
+      </SelectPrimitive.Portal>
+    </SelectPrimitive.Root>
+  );
+};

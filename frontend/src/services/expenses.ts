@@ -12,6 +12,17 @@ export interface ExpenseQueryParams {
   offset?: number;
 }
 
+export interface ExpenseBreakdownParams {
+  start: string; // YYYY-MM-DD format
+  end?: string; // YYYY-MM-DD format
+}
+
+export interface ExpenseBreakdown {
+  category: string;
+  total: string;
+  entries: number;
+}
+
 type ExpenseListResponse = ExpenseDto[] | { data?: ExpenseDto[] | null };
 
 const extractExpenses = (response: ExpenseListResponse): ExpenseDto[] => {
@@ -30,10 +41,20 @@ export const fetchExpenses = async (
   params: ExpenseQueryParams = {},
 ): Promise<Expense[]> => {
   const response = await apiRequest<ExpenseListResponse>("expenses", {
-    query: params,
+    query: params as Record<string, string | number | boolean | undefined>,
   });
 
   return extractExpenses(response).map(mapExpense);
+};
+
+export const fetchExpenseBreakdown = async (
+  params: ExpenseBreakdownParams,
+): Promise<ExpenseBreakdown[]> => {
+  const response = await apiRequest<ExpenseBreakdown[]>("breakdown/expenses", {
+    query: params as unknown as Record<string, string | number | boolean | undefined>,
+  });
+
+  return Array.isArray(response) ? response : [];
 };
 
 export const fetchExpenseById = async (id: string): Promise<Expense> => {
@@ -89,6 +110,13 @@ export const useExpensesQuery = (params: ExpenseQueryParams = {}) =>
   useQuery({
     queryKey: queryKeys.expenses(params),
     queryFn: () => fetchExpenses(params),
+  });
+
+export const useExpenseBreakdownQuery = (params: ExpenseBreakdownParams) =>
+  useQuery({
+    queryKey: ['expenses', 'breakdown', params],
+    queryFn: () => fetchExpenseBreakdown(params),
+    enabled: Boolean(params.start),
   });
 
 export const useExpenseQuery = (id: string) =>

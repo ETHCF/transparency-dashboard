@@ -20,6 +20,8 @@ type RouteHandler struct {
 	grantDB       db.GrantDB
 	settingsDB    db.SettingsDB
 	treasuryDB    db.TreasuryDB
+	budgetDB      db.BudgetDB
+	categoryDB    db.CategoryDB
 
 	// Auth
 	authMiddleware auth.Middleware
@@ -45,6 +47,8 @@ func NewRouteHandler(conf *config.Config, dbPacket db.DatabasePacket, authPacket
 		grantDB:       dbPacket.GrantDB,
 		settingsDB:    dbPacket.SettingsDB,
 		treasuryDB:    dbPacket.TreasuryDB,
+		budgetDB:      dbPacket.BudgetDB,
+		categoryDB:    dbPacket.CategoryDB,
 
 		authMiddleware: authPacket.AuthMiddleware,
 		tokenVerifier:  authPacket.TokenVerifier,
@@ -78,8 +82,12 @@ func (rh *RouteHandler) ApplyRoutes(r *gin.Engine) {
 	api.GET("/expenses/:id", rh.GetExpenseByID)
 	api.GET("/expenses/:id/receipts", rh.GetExpenseReceipts)
 	api.GET("/receipts/:id", rh.GetReceiptByID)
+	api.GET("/budgets/allocations", rh.GetMonthlyBudgetAllocations)
+	api.GET("/categories", rh.GetCategories)
+	api.GET("/categories/:name", rh.GetCategoryByName)
 	api.GET("/settings/organization-name", rh.GetOrganizationName)
 	api.GET("/settings/total-funds-raised", rh.GetTotalFundsRaised)
+	api.GET("/breakdown/expenses", rh.GetSpendingBreakdown)
 
 	// Admin routes (require auth middleware)
 	api.GET("/admins", rh.authMiddleware.Handle, rh.GetAdmins)
@@ -109,4 +117,10 @@ func (rh *RouteHandler) ApplyRoutes(r *gin.Engine) {
 	api.PUT("/grants/:id/disbursements/:disbursementId", rh.authMiddleware.Handle, rh.UpdateDisbursement)
 	api.POST("/grants/:id/funds-usage", rh.authMiddleware.Handle, rh.CreateGrantFundsUsage)
 	api.PUT("/grants/:id/funds-usage/:usageId", rh.authMiddleware.Handle, rh.UpdateGrantFundsUsage)
+	api.POST("/budgets/allocations", rh.authMiddleware.Handle, rh.CreateMonthlyBudgetAllocation)
+	api.PUT("/budgets/allocations/:id", rh.authMiddleware.Handle, rh.UpdateMonthlyBudgetAllocation)
+	api.DELETE("/budgets/allocations/:id", rh.authMiddleware.Handle, rh.DeleteMonthlyBudgetAllocation)
+	api.POST("/categories", rh.authMiddleware.Handle, rh.CreateCategory)
+	api.PUT("/categories/:name", rh.authMiddleware.Handle, rh.UpdateCategory)
+	api.DELETE("/categories/:name", rh.authMiddleware.Handle, rh.DeleteCategory)
 }

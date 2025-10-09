@@ -1,15 +1,17 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useEffect, useRef } from "react";
+import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 
 import { ErrorState } from "@/components/common/ErrorState";
 import { Loader } from "@/components/common/Loader";
 import { FormField } from "@/components/forms/FormField";
 import { Input } from "@/components/forms/Input";
+import { SelectField } from "@/components/forms/Select";
 import { TextArea } from "@/components/forms/TextArea";
 import { Page, PageSection } from "@/components/layout/Page";
+import { useCategoriesQuery } from "@/services/categories";
 import {
   useExpenseQuery,
   useUpdateExpenseMutation,
@@ -31,26 +33,40 @@ type FormValues = z.infer<typeof schema>;
 const ExpenseEditPage = () => {
   const { expenseId } = Route.useParams();
   const expenseQuery = useExpenseQuery(expenseId);
+  const categoriesQuery = useCategoriesQuery();
   const updateMutation = useUpdateExpenseMutation(expenseId);
   const addToast = useUiStore((state) => state.addToast);
+  const hasInitialized = useRef(false);
 
-  const form = useForm<FormValues>({ resolver: zodResolver(schema) });
+  const form = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      item: "",
+      category: "",
+      quantity: 1,
+      price: 0,
+      purpose: "",
+      date: "",
+      txHash: "",
+    },
+  });
+
+  const categories = categoriesQuery.data ?? [];
 
   useEffect(() => {
-    if (!expenseQuery.data) {
-      return;
+    if (expenseQuery.data && !hasInitialized.current) {
+      const expense = expenseQuery.data;
+      form.reset({
+        item: expense.item,
+        category: expense.category || "",
+        quantity: expense.quantity,
+        price: expense.price,
+        purpose: expense.purpose || "",
+        date: expense.date.toISOString().slice(0, 10),
+        txHash: expense.txHash ?? "",
+      });
+      hasInitialized.current = true;
     }
-
-    const expense = expenseQuery.data;
-    form.reset({
-      item: expense.item,
-      category: expense.category,
-      quantity: expense.quantity,
-      price: expense.price,
-      purpose: expense.purpose,
-      date: expense.date.toISOString().slice(0, 10),
-      txHash: expense.txHash ?? "",
-    });
   }, [expenseQuery.data, form]);
 
   const onSubmit = form.handleSubmit(async (values) => {
@@ -67,7 +83,7 @@ const ExpenseEditPage = () => {
     addToast({ title: "Expense updated", variant: "success" });
   });
 
-  if (expenseQuery.isPending) {
+  if (expenseQuery.isPending || categoriesQuery.isPending) {
     return <Loader label="Loading expense" />;
   }
 
@@ -78,6 +94,20 @@ const ExpenseEditPage = () => {
         description={expenseQuery.error?.message}
       />
     );
+  }
+
+  if (categoriesQuery.isError) {
+    return (
+      <ErrorState
+        title="Unable to load categories"
+        description={categoriesQuery.error?.message}
+      />
+    );
+  }
+
+  // Don't render the form until it's been initialized
+  if (!hasInitialized.current) {
+    return <Loader label="Loading expense" />;
   }
 
   return (
@@ -95,7 +125,20 @@ const ExpenseEditPage = () => {
             label="Category"
             error={form.formState.errors.category?.message}
           >
-            <Input {...form.register("category")} />
+            <Controller
+              name="category"
+              control={form.control}
+              render={({ field }) => (
+                <SelectField
+                  {...field}
+                  placeholder="Select a category"
+                  options={categories.map((cat) => ({
+                    value: cat.name,
+                    label: cat.name,
+                  }))}
+                />
+              )}
+            />
           </FormField>
 
           <FormField
