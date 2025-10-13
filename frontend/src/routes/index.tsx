@@ -338,11 +338,6 @@ const DashboardPage = () => {
               ?
             </button>
           </div>
-          <StatCard
-            label="Runway"
-            value={burnRateMetrics.runway}
-            caption="Time until treasury depleted"
-          />
         </PageGrid>
         {showBurnRateInfo && (
           <div style={{
