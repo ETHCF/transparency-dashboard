@@ -100,4 +100,4 @@ jobs:
           --set global.alchemy.apiKey=${{ secrets.ALCHEMY_KEY }} \
           --set global.initialAdminAddress=${{ secrets.INITIAL_ADMIN }} \
           --set global.rpcURL=${{ secrets.RPC_URL }} \
-          --set postgresql.auth.POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} 
+          --set externalPostgresql.host=${{ secrets.DB_HOST }} 

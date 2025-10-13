@@ -53,22 +53,14 @@ dashboard:
       cpu: 100m
       memory: 128Mi
 
+externalPostgresql:
+  host: "<ip injected here>"
+  port: 5432
+  database: transparency
+  existingSecret: transparency
+  secretKeys:
+    usernameKey: "db_username"
+    passwordKey: "db_password"
 
 postgresql:
-  enabled: true
-  primary:
-    resources:
-      requests:
-        cpu: 200m
-        memory: 512Mi
-      limits:
-        cpu: 200m
-        memory: 512Mi
-  auth:
-    postgresPassword: 
-    username:
-    password:
-    database: 
-    secretKeys:
-      adminPasswordKey: "postgres-password"
-      userPasswordKey: "postgres-password"
+  enabled: false
