@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 
+import { CopyIcon } from "@/components/icons";
 import { useUiStore } from "@/stores/ui";
 import { buildExplorerUrl, truncateAddress } from "@/utils/eth";
 
@@ -53,7 +54,7 @@ export const AddressLink = ({
           className={styles.button}
           onClick={handleCopy}
         >
-          <span className={styles.icon}>📋</span>
+          <CopyIcon size={14} className={styles.icon} />
         </button>
       ) : null}
     </span>

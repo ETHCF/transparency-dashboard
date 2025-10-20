@@ -5,6 +5,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { EmptyState } from "@/components/common/EmptyState";
 import { ErrorState } from "@/components/common/ErrorState";
 import { Loader } from "@/components/common/Loader";
+import { ChevronLeftIcon, ChevronRightIcon, ExportIcon } from "@/components/icons";
 import { Page, PageSection } from "@/components/layout/Page";
 import { DataTable } from "@/components/table/DataTable";
 import type { ColumnDef } from "@/components/table/DataTable";
@@ -197,18 +198,20 @@ function TransfersPage() {
                 className="btn btn-outlined"
                 onClick={handleExportCSV}
                 disabled={!data.length}
-                style={{ fontSize: '13px' }}
+                style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}
               >
-                📊 Export CSV
+                <ExportIcon size={14} />
+                Export CSV
               </button>
               <button
                 type="button"
                 className="btn btn-outlined"
                 onClick={handleExportJSON}
                 disabled={!data.length}
-                style={{ fontSize: '13px' }}
+                style={{ fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px' }}
               >
-                📄 Export JSON
+                <ExportIcon size={14} />
+                Export JSON
               </button>
             </div>
             <Link to="/" className="btn btnGhost">
@@ -220,7 +223,10 @@ function TransfersPage() {
                 className="btn btnGhost"
                 onClick={handlePrev}
                 disabled={pagination.offset === 0 || isInitialLoading}
+                aria-label="Previous page"
+                style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
               >
+                <ChevronLeftIcon size={16} />
                 Previous
               </button>
               <button
@@ -228,8 +234,11 @@ function TransfersPage() {
                 className="btn btnGhost"
                 onClick={handleNext}
                 disabled={isInitialLoading || reachedEnd}
+                aria-label="Next page"
+                style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
               >
                 Next
+                <ChevronRightIcon size={16} />
               </button>
             </div>
           </div>

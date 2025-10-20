@@ -163,27 +163,29 @@ function ExpensesPage() {
       </div>
 
       <div className={styles.gridLayout}>
-        <div className={styles.categoryBreakdown}>
+        <div>
           <h2 className={styles.sectionTitle}>Category Breakdown</h2>
-          <div className={styles.breakdownList}>
-            {categoryBreakdown.map(({ category, amount }) => {
-              const percentage = (amount / totalExpenses) * 100;
-              return (
-                <div key={category} className={styles.breakdownItem}>
-                  <div className={styles.breakdownHeader}>
-                    <span className={styles.categoryName}>{category}</span>
-                    <span className={styles.categoryAmount}>{formatCurrency(amount)}</span>
+          <div className={styles.categoryBreakdown}>
+            <div className={styles.breakdownList}>
+              {categoryBreakdown.map(({ category, amount }) => {
+                const percentage = (amount / totalExpenses) * 100;
+                return (
+                  <div key={category} className={styles.breakdownItem}>
+                    <div className={styles.breakdownHeader}>
+                      <span className={styles.categoryName}>{category}</span>
+                      <span className={styles.categoryAmount}>{formatCurrency(amount)}</span>
+                    </div>
+                    <div className={styles.breakdownBar}>
+                      <div
+                        className={styles.breakdownFill}
+                        style={{ width: `${percentage}%` }}
+                      />
+                    </div>
+                    <div className={styles.breakdownPercentage}>{percentage.toFixed(1)}%</div>
                   </div>
-                  <div className={styles.breakdownBar}>
-                    <div
-                      className={styles.breakdownFill}
-                      style={{ width: `${percentage}%` }}
-                    />
-                  </div>
-                  <div className={styles.breakdownPercentage}>{percentage.toFixed(1)}%</div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
 

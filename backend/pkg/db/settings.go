@@ -43,7 +43,7 @@ func NewSettingsDB(conf *config.Config, dbConn *sqlx.DB) (SettingsDB, error) {
 func (sb *settingsDB) GetOrganizationName(ctx context.Context) (string, error) {
 	orgName, err := sb.Get(ctx, constants.SettingOrgName)
 	if errors.Is(err, sql.ErrNoRows) {
-		return "My Organization", nil // default name
+		return "Ethereum Community Foundation", nil // default name
 	}
 	return orgName, err
 }

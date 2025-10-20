@@ -1,0 +1,21 @@
+.bar {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--gradient-eth);
+  color: white;
+  text-align: center;
+  font-family: var(--font-family);
+  font-size: var(--md-sys-typescale-body-medium-size);
+  font-weight: 500;
+  line-height: var(--md-sys-typescale-body-medium-line-height);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+}
+
+.bar:hover {
+  opacity: 0.92;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(98, 126, 234, 0.25);
+}
