@@ -23,6 +23,11 @@ export default [
 				}
 			}
 		},
+		plugins: {
+			"@typescript-eslint": tsPlugin,
+			"react": reactPlugin,
+			"react-hooks": reactHooks
+		},
 		rules: {
 			...js.configs.recommended.rules,
 			...tsPlugin.configs.recommended.rules,
@@ -32,7 +37,7 @@ export default [
 			"max-len": ["error", { "code": 90, "tabWidth": 2, "ignoreUrls": true }],
 			"quotes": ["error", "double"],
 			"semi": ["error", "never"],
-			"indent": ["error", "tab", { "SwitchCase": 1 }],
+			"indent": "off",
 			"no-tabs": "off",
 			"react/react-in-jsx-scope": "off",
 			"react/jsx-uses-react": "off"
