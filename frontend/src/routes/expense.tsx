@@ -163,33 +163,35 @@ function ExpensesPage() {
       </div>
 
       <div className={styles.gridLayout}>
-        <div className={styles.categoryBreakdown}>
-          <h2 className={styles.sectionTitle}>Category Breakdown</h2>
-          <div className={styles.breakdownList}>
-            {categoryBreakdown.map(({ category, amount }) => {
-              const percentage = (amount / totalExpenses) * 100;
-              return (
-                <div key={category} className={styles.breakdownItem}>
-                  <div className={styles.breakdownHeader}>
-                    <span className={styles.categoryName}>{category}</span>
-                    <span className={styles.categoryAmount}>{formatCurrency(amount)}</span>
+        <div>
+          <div className={styles.categoryBreakdown}>
+            <h2 className={styles.sectionTitle}>Category Breakdown</h2>
+            <div className={styles.breakdownList}>
+              {categoryBreakdown.map(({ category, amount }) => {
+                const percentage = (amount / totalExpenses) * 100;
+                return (
+                  <div key={category} className={styles.breakdownItem}>
+                    <div className={styles.breakdownHeader}>
+                      <span className={styles.categoryName}>{category}</span>
+                      <span className={styles.categoryAmount}>{formatCurrency(amount)}</span>
+                    </div>
+                    <div className={styles.breakdownBar}>
+                      <div
+                        className={styles.breakdownFill}
+                        style={{ width: `${percentage}%` }}
+                      />
+                    </div>
+                    <div className={styles.breakdownPercentage}>{percentage.toFixed(1)}%</div>
                   </div>
-                  <div className={styles.breakdownBar}>
-                    <div
-                      className={styles.breakdownFill}
-                      style={{ width: `${percentage}%` }}
-                    />
-                  </div>
-                  <div className={styles.breakdownPercentage}>{percentage.toFixed(1)}%</div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
 
         <div className={styles.expensesList}>
-          <h2 className={styles.sectionTitle}>Recent Expenses</h2>
           <div className={styles.tableContainer}>
+            <h2 className={styles.sectionTitle}>Recent Expenses</h2>
             <table className={styles.table}>
               <thead>
                 <tr>

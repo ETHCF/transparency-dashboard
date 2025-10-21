@@ -1,3 +1,5 @@
+import { ChevronLeftIcon, ChevronRightIcon } from "@/components/icons";
+
 import styles from "./PaginationControls.module.css";
 
 export interface PaginationControlsProps {
@@ -21,8 +23,9 @@ export const PaginationControls = ({
       className={styles.button}
       onClick={() => onPageChange(page - 1)}
       disabled={!canPrev || page <= 1}
+      aria-label="Previous page"
     >
-      Previous
+      <ChevronLeftIcon size={16} />
     </button>
     <span className={styles.label}>
       Page {page}
@@ -33,8 +36,9 @@ export const PaginationControls = ({
       className={styles.button}
       onClick={() => onPageChange(page + 1)}
       disabled={!canNext}
+      aria-label="Next page"
     >
-      Next
+      <ChevronRightIcon size={16} />
     </button>
   </div>
 );

@@ -74,6 +74,11 @@ export const AppHeader = ({
           </svg>
         </button>
         <div className={styles.brand}>
+          <img
+            src="/logo.svg"
+            alt={organizationName}
+            style={{ height: '28px' }}
+          />
           <Link to="/" className={styles.title}>
             {organizationName}
           </Link>

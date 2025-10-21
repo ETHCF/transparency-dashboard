@@ -10,8 +10,16 @@ export interface AppFooterProps {
 export const AppFooter = ({ children, links }: AppFooterProps): JSX.Element => (
   <footer className={styles.footer}>
     <div>
-      © {new Date().getFullYear()} Ethereum Community Foundation. All rights
-      reserved.
+      Powered by{" "}
+      <a
+        href="https://github.com/ETHCF/transparency-dashboard"
+        className={styles.link}
+        target="_blank"
+        rel="noreferrer"
+      >
+        <strong>Glassbox</strong>
+      </a>
+      {" "}- an Open Source Treasury Explorer
     </div>
     {links ? (
       <div>

@@ -30,6 +30,7 @@ services:
       DBPORT: "5432"
       LISTEN: "0.0.0.0:8080"
       INITIAL_ADMIN_ADDRESS: "0x11A282e7bB9bE921313dDB6DAa2afbff920231C9"
+      DEV_MODE: "true"
     ports:
       - "8080:8080"
     command: ["api"]
