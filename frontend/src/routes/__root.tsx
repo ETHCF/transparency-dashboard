@@ -70,7 +70,7 @@ const RootComponent = () => {
     </div>
   );
 
-  const headerTitle = "Ethereum Community Foundation";
+  const headerTitle = treasury.organizationName || "Transparency Dashboard";
 
   return (
     <>
@@ -100,7 +100,7 @@ const RootComponent = () => {
 const RootErrorComponent = ({ error }: ErrorProps) => {
   const header = (
     <AppHeader
-      organizationName="Ethereum Community Foundation"
+      organizationName="Transparency Dashboard"
     />
   );
 

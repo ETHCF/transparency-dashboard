@@ -76,7 +76,7 @@ export const AppHeader = ({
         <div className={styles.brand}>
           <img
             src="/logo.svg"
-            alt="Ethereum Community Foundation"
+            alt={organizationName}
             style={{ height: '28px' }}
           />
           <Link to="/" className={styles.title}>

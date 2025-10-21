@@ -59,9 +59,9 @@ export const AboutModal = ({ isOpen, onClose }: AboutModalProps): JSX.Element | 
               </div>
 
               <div className={styles.description}>
-                <h3>The Ethereum Community Foundation Treasury Explorer</h3>
+                <h3>Glassbox Treasury Dashboard</h3>
                 <p>
-                  Built with Glassbox - open-source treasury transparency software for Ethereum-based DAOs and foundations.
+                  Open-source treasury explorer for Ethereum-based DAOs and foundations.
                 </p>
 
                 <h4>Features</h4>
@@ -95,6 +95,22 @@ export const AboutModal = ({ isOpen, onClose }: AboutModalProps): JSX.Element | 
 
           {activeTab === "faq" && (
             <div className={styles.faqTab}>
+              <div className={styles.faqItem}>
+                <h4>Why does this exist?</h4>
+                <p>
+                  Real-time treasury transparency is virtually nonexistent - even in crypto. While some foundations publish occasional updates or quarterly reports, live, transaction-level visibility into treasury operations simply doesn't exist.
+                </p>
+                <p>
+                  The Ethereum ecosystem needs better transparency in how foundation funds are managed. Glassbox provides live, on-chain visibility into every transaction, expense, and grant as they happen. No black boxes, no waiting for quarterly reports, no opacity - just verifiable data anyone can audit in real-time.
+                </p>
+                <p>
+                  We built this as open source software so any foundation (or DAO) can deploy their own treasury dashboard. Transparency shouldn't be hard, and it shouldn't be optional.
+                </p>
+                <p>
+                  This level of financial openness isn't easy, and it's not common - but it's necessary.
+                </p>
+              </div>
+
               <div className={styles.faqItem}>
                 <h4>What is Glassbox?</h4>
                 <p>

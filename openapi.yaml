@@ -3,8 +3,6 @@ info:
   title: Transparency Dashboard API
   description: API for tracking grants and spending on-chain for organizational transparency
   version: 1.0.0
-  contact:
-    name: Ethereum Community Foundation
 servers:
   - url: /api/v1
     description: API server
@@ -28,7 +26,7 @@ paths:
                 success:
                   summary: Example treasury response
                   value:
-                    organizationName: "Ethereum Community Foundation"
+                    organizationName: "My Organization"
                     assets:
                       - name: "ETH"
                         amount: "1250.5"
@@ -988,7 +986,7 @@ paths:
                 name:
                   type: string
                   description: New organization name
-                  example: "Ethereum Community Foundation"
+                  example: "My Organization"
                   minLength: 1
                   maxLength: 255
               required:
@@ -997,7 +995,7 @@ paths:
               update:
                 summary: Update organization name
                 value:
-                  name: "Ethereum Community Foundation"
+                  name: "My Organization"
       responses:
         '200':
           description: Organization name updated successfully
@@ -1009,14 +1007,14 @@ paths:
                   name:
                     type: string
                     description: Updated organization name
-                    example: "Ethereum Community Foundation"
+                    example: "My Organization"
                 required:
                   - name
               examples:
                 success:
                   summary: Updated organization name
                   value:
-                    name: "Ethereum Community Foundation"
+                    name: "My Organization"
         '400':
           description: Bad request - invalid name
           content:
@@ -2208,7 +2206,7 @@ components:
         organizationName:
           type: string
           description: Name of the organization
-          example: "Ethereum Community Foundation"
+          example: "My Organization"
         assets:
           type: array
           description: List of treasury assets

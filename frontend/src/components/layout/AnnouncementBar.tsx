@@ -7,8 +7,7 @@ export const AnnouncementBar = (): JSX.Element => (
     target="_blank"
     rel="noreferrer"
   >
-    The Ethereum Community Foundation treasury explorer is now live - built with
-    Glassbox •{" "}
+    Glassbox - the open source treasury explorer is now live •{" "}
     <strong>View on Github</strong> ↗
   </a>
 );

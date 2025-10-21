@@ -132,6 +132,11 @@
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem 0 0 0;
+}
+
+.tableContainer .sectionTitle {
+  padding: 0 1.5rem;
 }
 
 .table {
@@ -283,7 +288,7 @@
   font-size: 1.125rem;
   font-weight: 600;
   color: var(--md-sys-color-on-surface);
-  margin-bottom: 1rem;
+  margin: 0 0 1.25rem 0;
 }
 
 .categoryBreakdown {

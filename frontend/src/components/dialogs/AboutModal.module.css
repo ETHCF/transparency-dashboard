@@ -252,6 +252,15 @@
   border: 1px solid var(--md-sys-color-outline-variant);
 }
 
+.faqItem a {
+  color: var(--md-sys-color-primary);
+  text-decoration: none;
+}
+
+.faqItem a:hover {
+  text-decoration: underline;
+}
+
 .faqItem h4 {
   font-size: 1rem;
   font-weight: 600;
@@ -263,7 +272,11 @@
   font-size: 0.9rem;
   line-height: 1.6;
   color: var(--md-sys-color-on-surface-variant);
-  margin: 0;
+  margin: 0 0 0.875rem 0;
+}
+
+.faqItem p:last-child {
+  margin-bottom: 0;
 }
 
 @media (max-width: 768px) {

@@ -164,8 +164,8 @@ function ExpensesPage() {
 
       <div className={styles.gridLayout}>
         <div>
-          <h2 className={styles.sectionTitle}>Category Breakdown</h2>
           <div className={styles.categoryBreakdown}>
+            <h2 className={styles.sectionTitle}>Category Breakdown</h2>
             <div className={styles.breakdownList}>
               {categoryBreakdown.map(({ category, amount }) => {
                 const percentage = (amount / totalExpenses) * 100;
@@ -190,8 +190,8 @@ function ExpensesPage() {
         </div>
 
         <div className={styles.expensesList}>
-          <h2 className={styles.sectionTitle}>Recent Expenses</h2>
           <div className={styles.tableContainer}>
+            <h2 className={styles.sectionTitle}>Recent Expenses</h2>
             <table className={styles.table}>
               <thead>
                 <tr>
