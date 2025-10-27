@@ -47,6 +47,7 @@ export interface TreasuryResponseDto {
   totalValueUsd?: number | string | null;
   totalValueEth?: string | number | null;
   totalFundsRaised?: number | string | null;
+  totalFundsRaisedUnit?: string | null;
   lastUpdated?: string | null;
 }
 

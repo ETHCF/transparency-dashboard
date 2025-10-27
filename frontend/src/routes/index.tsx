@@ -302,7 +302,11 @@ const DashboardPage = () => {
         <PageGrid columns="repeat(auto-fit, minmax(220px, 1fr))">
           <StatCard
             label="Total Funds Raised"
-            value={formatCurrency(treasury.totalFundsRaised)}
+            value={
+              treasury.totalFundsRaisedUnit === "ETH"
+                ? `${treasury.totalFundsRaised.toFixed(1)} ETH`
+                : formatCurrency(treasury.totalFundsRaised)
+            }
           />
           <StatCard
             label="Total Value (USD)"

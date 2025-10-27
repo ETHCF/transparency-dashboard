@@ -1,8 +1,9 @@
 package types
 
 type OrganizationSettings struct {
-	Name             string  `json:"name" db:"name"`
-	TotalFundsRaised float64 `json:"totalFundsRaised"`
+	Name                 string  `json:"name" db:"name"`
+	TotalFundsRaised     float64 `json:"totalFundsRaised"`
+	TotalFundsRaisedUnit string  `json:"totalFundsRaisedUnit"`
 }
 
 type UpdateOrganizationNameRequest struct {
@@ -11,4 +12,12 @@ type UpdateOrganizationNameRequest struct {
 
 type UpdateTotalFundsRaisedRequest struct {
 	Amount float64 `json:"amount" binding:"required,min=0"`
+}
+
+type UpdateTotalFundsRaisedUnitRequest struct {
+	Unit string `json:"unit" binding:"required,oneof=ETH USD"`
+}
+
+type TotalFundsRaisedUnitResponse struct {
+	Unit string `json:"unit"`
 }

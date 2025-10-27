@@ -74,15 +74,21 @@ func (t *treasury) GetTreasuryResponse(ctx context.Context) (*types.TreasuryResp
 		return nil, errors.Wrap(err, "failed to get total funds raised")
 	}
 
+	totalFundsRaisedUnit, err := t.settingDB.GetTotalFundsRaisedUnit(ctx)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get total funds raised unit")
+	}
+
 	return &types.TreasuryResponse{
-		OrganizationName: orgName,
-		Assets:           assets,
-		WalletBalances:   balances,
-		Wallets:          wallets,
-		TotalValueUsd:    totalValueUsd,
-		TotalValueEth:    totalValueEth,
-		TotalFundsRaised: totalFundsRaised,
-		LastUpdated:      time.Now(),
+		OrganizationName:     orgName,
+		Assets:               assets,
+		WalletBalances:       balances,
+		Wallets:              wallets,
+		TotalValueUsd:        totalValueUsd,
+		TotalValueEth:        totalValueEth,
+		TotalFundsRaised:     totalFundsRaised,
+		TotalFundsRaisedUnit: totalFundsRaisedUnit,
+		LastUpdated:          time.Now(),
 	}, nil
 }
 
@@ -172,7 +178,7 @@ func NewTreasuryDB(ctx context.Context, conf *config.Config, dbConn *sqlx.DB, se
 		LEFT JOIN transfer_parties wt ON (t.payee_address = wt.address)
 		LEFT JOIN assets a ON (t.asset = a.address)`
 
-	getTransfers, err := dbConn.PreparexContext(ctx, getTransfersQuery+" LIMIT $1 OFFSET $2")
+	getTransfers, err := dbConn.PreparexContext(ctx, getTransfersQuery+" ORDER BY t.block_timestamp DESC, t.log_index DESC LIMIT $1 OFFSET $2")
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to prepare GetTransfers statement")
 	}
