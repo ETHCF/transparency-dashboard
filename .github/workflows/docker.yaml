@@ -138,7 +138,7 @@ jobs:
       run: helm dependency build
     - name: 'Deploy'
       run: |
-        helm upgrade --install ${{ vars.SERVICE_NAME }}_ethva ./helm  --values ops/ethva.yaml \
+        helm upgrade --install ${{ vars.SERVICE_NAME }}ethva ./helm  --values ops/ethva.yaml \
           --set backend.image.tag=backend-${{ github.ref_name }} \
           --set dashboard.image.tag=frontend-${{ github.ref_name }} \
           --namespace ${{ secrets.NAMESPACE }} --create-namespace --set namespace=${{ secrets.NAMESPACE }} \
