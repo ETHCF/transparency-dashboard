@@ -87,6 +87,7 @@ func (rh *RouteHandler) ApplyRoutes(r *gin.Engine) {
 	api.GET("/categories/:name", rh.GetCategoryByName)
 	api.GET("/settings/organization-name", rh.GetOrganizationName)
 	api.GET("/settings/total-funds-raised", rh.GetTotalFundsRaised)
+	api.GET("/settings/total-funds-raised-unit", rh.GetTotalFundsRaisedUnit)
 	api.GET("/breakdown/expenses", rh.GetSpendingBreakdown)
 
 	// Admin routes (require auth middleware)
@@ -113,6 +114,7 @@ func (rh *RouteHandler) ApplyRoutes(r *gin.Engine) {
 	api.PUT("/settings/organization-name", rh.authMiddleware.Handle, rh.UpdateOrganizationName)
 	api.POST("/settings/name", rh.authMiddleware.Handle, rh.UpdateOrganizationName)
 	api.POST("/settings/total-funds-raised", rh.authMiddleware.Handle, rh.UpdateTotalFundsRaised)
+	api.POST("/settings/total-funds-raised-unit", rh.authMiddleware.Handle, rh.UpdateTotalFundsRaisedUnit)
 	api.POST("/grants/:id/disbursements", rh.authMiddleware.Handle, rh.CreateDisbursement)
 	api.PUT("/grants/:id/disbursements/:disbursementId", rh.authMiddleware.Handle, rh.UpdateDisbursement)
 	api.POST("/grants/:id/funds-usage", rh.authMiddleware.Handle, rh.CreateGrantFundsUsage)

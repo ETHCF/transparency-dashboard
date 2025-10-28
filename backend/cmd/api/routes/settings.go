@@ -29,6 +29,14 @@ type TotalFundsRaisedResponse struct {
 	Amount float64 `json:"amount"`
 }
 
+type UpdateTotalFundsRaisedUnitRequest struct {
+	Unit string `json:"unit" binding:"required,oneof=ETH USD"`
+}
+
+type TotalFundsRaisedUnitResponse struct {
+	Unit string `json:"unit"`
+}
+
 // GET /api/v1/settings/name - Get organization name
 func (rh *RouteHandler) GetOrganizationName(c *gin.Context) {
 	name, err := rh.settingsDB.GetOrganizationName(c)
@@ -144,4 +152,52 @@ func (rh *RouteHandler) UpdateTotalFundsRaised(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, TotalFundsRaisedResponse{Amount: req.Amount})
+}
+
+// GET /api/v1/settings/total-funds-raised-unit - Get total funds raised unit
+func (rh *RouteHandler) GetTotalFundsRaisedUnit(c *gin.Context) {
+	unit, err := rh.settingsDB.GetTotalFundsRaisedUnit(c)
+	if err != nil {
+		rh.log.WithError(err).Error("failed to get total funds raised unit")
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve total funds raised unit"})
+		return
+	}
+
+	c.JSON(http.StatusOK, TotalFundsRaisedUnitResponse{Unit: unit})
+}
+
+// POST /api/v1/settings/total-funds-raised-unit - Update total funds raised unit
+func (rh *RouteHandler) UpdateTotalFundsRaisedUnit(c *gin.Context) {
+	var req UpdateTotalFundsRaisedUnitRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		rh.log.WithError(err).Warn("failed to bind total funds raised unit update request")
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if err := rh.settingsDB.SetTotalFundsRaisedUnit(c, req.Unit); err != nil {
+		rh.log.WithError(err).Error("failed to update total funds raised unit")
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to update total funds raised unit"})
+		return
+	}
+
+	currentAdminAddr := auth.MustUserID(c)
+
+	adminAction := types.AdminAction{
+		AdminAddress: currentAdminAddr,
+		Action:       "update_total_funds_raised_unit",
+		ResourceType: "setting",
+		ResourceID:   "total_funds_raised_unit",
+		Details: types.AdminActionDetails{
+			"new_unit": req.Unit,
+		},
+		CreatedAt: time.Now(),
+	}
+
+	err := rh.adminActionDB.RecordAdminAction(c, adminAction)
+	if err != nil {
+		rh.log.WithError(err).Error("failed to record admin action")
+	}
+
+	c.JSON(http.StatusOK, TotalFundsRaisedUnitResponse{Unit: req.Unit})
 }

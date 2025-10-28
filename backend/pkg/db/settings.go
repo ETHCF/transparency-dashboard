@@ -23,6 +23,8 @@ type SettingsDB interface {
 	SetOrganizationName(ctx context.Context, name string) error
 	GetTotalFundsRaised(ctx context.Context) (float64, error)
 	SetTotalFundsRaised(ctx context.Context, amount float64) error
+	GetTotalFundsRaisedUnit(ctx context.Context) (string, error)
+	SetTotalFundsRaisedUnit(ctx context.Context, unit string) error
 	LoadJWTKey(ctx context.Context) (*ecdsa.PrivateKey, error)
 }
 
@@ -71,6 +73,18 @@ func (sb *settingsDB) GetTotalFundsRaised(ctx context.Context) (float64, error) 
 
 func (sb *settingsDB) SetTotalFundsRaised(ctx context.Context, amount float64) error {
 	return sb.Set(ctx, constants.SettingTotalFundsRaised, fmt.Sprintf("%f", amount))
+}
+
+func (sb *settingsDB) GetTotalFundsRaisedUnit(ctx context.Context) (string, error) {
+	value, err := sb.Get(ctx, constants.SettingTotalFundsRaisedUnit)
+	if errors.Is(err, sql.ErrNoRows) {
+		return "USD", nil // default to USD
+	}
+	return value, err
+}
+
+func (sb *settingsDB) SetTotalFundsRaisedUnit(ctx context.Context, unit string) error {
+	return sb.Set(ctx, constants.SettingTotalFundsRaisedUnit, unit)
 }
 
 func (sb *settingsDB) Get(ctx context.Context, key string) (string, error) {

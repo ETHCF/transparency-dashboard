@@ -28,6 +28,7 @@ export interface TreasuryOverview {
   totalValueUsd: number;
   totalValueEth: number;
   totalFundsRaised: number;
+  totalFundsRaisedUnit: string;
   lastUpdated: Date;
   assets: TreasuryAsset[];
   wallets: TreasuryWallet[];

@@ -289,6 +289,7 @@ export const mapTreasuryResponse = (
         ? aggregatedEthTotal
         : toNumber(dto.totalValueEth),
     totalFundsRaised: toNumber(dto.totalFundsRaised),
+    totalFundsRaisedUnit: dto.totalFundsRaisedUnit ?? "USD",
     lastUpdated: toDate(dto.lastUpdated),
     assets: aggregatedAssets,
     wallets: mapTreasuryWallets(dto.wallets),

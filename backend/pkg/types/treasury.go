@@ -27,12 +27,13 @@ type Wallet struct {
 }
 
 type TreasuryResponse struct {
-	OrganizationName string          `json:"organizationName"`
-	Assets           []Asset         `json:"assets"`
-	WalletBalances   []WalletBalance `json:"walletBalances"`
-	Wallets          []Wallet        `json:"wallets"`
-	TotalValueUsd    float64         `json:"totalValueUsd"`
-	TotalValueEth    string          `json:"totalValueEth"` // High precision decimal as string
-	TotalFundsRaised float64         `json:"totalFundsRaised"`
-	LastUpdated      time.Time       `json:"lastUpdated"`
+	OrganizationName     string          `json:"organizationName"`
+	Assets               []Asset         `json:"assets"`
+	WalletBalances       []WalletBalance `json:"walletBalances"`
+	Wallets              []Wallet        `json:"wallets"`
+	TotalValueUsd        float64         `json:"totalValueUsd"`
+	TotalValueEth        string          `json:"totalValueEth"` // High precision decimal as string
+	TotalFundsRaised     float64         `json:"totalFundsRaised"`
+	TotalFundsRaisedUnit string          `json:"totalFundsRaisedUnit"`
+	LastUpdated          time.Time       `json:"lastUpdated"`
 }
