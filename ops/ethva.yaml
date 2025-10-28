@@ -1,0 +1,66 @@
+
+namespace: default
+
+backend:
+  tracker:
+    resources:
+      limits:
+        cpu: 200m
+        memory: 256Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+  api:
+    command: api
+    ingress:
+      enabled: false
+
+    autoscaler:
+      enabled: true
+      replicas: 1
+      minReplicas: 1
+      maxReplicas: 3
+      targetCPUUtil: 70
+    service:
+      type: ClusterIP
+      exposedPort: 80
+      internalPort: 8080
+    resources:
+      limits:
+        cpu: 200m
+        memory: 256Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi
+
+dashboard:
+  ingress:
+    enabled: true
+    host: transparency.ethva.org
+    tlsSecret: "ethva-tls"
+
+  autoscaler:
+    enabled: true
+    replicas: 1
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtil: 70
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+externalPostgresql:
+  host: "<ip injected here>"
+  port: 5432
+  database: transparency_ethva
+  existingSecret: transparency-ethva
+  secretKeys:
+    usernameKey: "db_username"
+    passwordKey: "db_password"
+
+postgresql:
+  enabled: false
