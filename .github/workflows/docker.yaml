@@ -138,11 +138,11 @@ jobs:
       run: helm dependency build
     - name: 'Deploy'
       run: |
-        helm upgrade --install ${{ vars.SERVICE_NAME }} ./helm  --values ops/ethva.yaml \
+        helm upgrade --install ${{ vars.SERVICE_NAME }}_ethva ./helm  --values ops/ethva.yaml \
           --set backend.image.tag=backend-${{ github.ref_name }} \
           --set dashboard.image.tag=frontend-${{ github.ref_name }} \
           --namespace ${{ secrets.NAMESPACE }} --create-namespace --set namespace=${{ secrets.NAMESPACE }} \
           --set global.alchemy.apiKey=${{ secrets.ALCHEMY_KEY }} \
           --set global.initialAdminAddress=${{ secrets.INITIAL_ADMIN }} \
           --set global.rpcURL=${{ secrets.RPC_URL }} \
-          --set externalPostgresql.host=${{ secrets.DB_HOST }}          
+          --set externalPostgresql.host=${{ secrets.DB_HOST }} 
