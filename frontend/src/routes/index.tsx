@@ -1,5 +1,5 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 
 import { AddressLink } from "@/components/common/AddressLink";
 import { EmptyState } from "@/components/common/EmptyState";
@@ -28,8 +28,7 @@ import {
   generateMockGrants,
   generateMockAssets,
   generateHistoricalBalances,
-  generateActivityFeed,
-  getBurnRateExplanation
+  generateActivityFeed
 } from "@/utils/mockData";
 
 const assetColumns: ColumnDef<TreasuryAsset>[] = [
@@ -72,7 +71,6 @@ const grantColumns: ColumnDef<Grant>[] = [
 
 const DashboardPage = () => {
   const navigate = useNavigate();
-  const [showBurnRateInfo, setShowBurnRateInfo] = useState(false);
   const isDevMode = import.meta.env.VITE_DEV_MODE === 'true';
 
   const treasuryQuery = useTreasuryQuery();
@@ -255,40 +253,6 @@ const DashboardPage = () => {
     })).slice(-6); // Last 6 months
   }, [transfersQuery.data, isTreasuryWallet]);
 
-  // Calculate burn rate and runway
-  const burnRateMetrics = useMemo(() => {
-    const expenseData = isDevMode ? mockExpenses : expensesQuery.data;
-    if (!expenseData || expenseData.length === 0) {
-      return { burnRate: 0, runway: 'N/A', details: 'No expense data available' };
-    }
-
-    // Calculate monthly burn rate from expenses
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-    const recentExpenses = expenseData.filter(expense =>
-      new Date(expense.date) >= thirtyDaysAgo
-    );
-
-    const monthlyBurn = recentExpenses.reduce((sum, expense) =>
-      sum + (expense.price || 0), 0
-    );
-
-    const totalValue = isDevMode
-      ? treasuryAssets.reduce((sum, asset) => sum + (asset.usdWorth || 0), 0)
-      : treasury.totalValueUsd;
-
-    const runway = totalValue > 0 && monthlyBurn > 0
-      ? Math.floor(totalValue / monthlyBurn)
-      : 0;
-
-    return {
-      burnRate: monthlyBurn,
-      runway: runway > 0 ? `${runway} months` : 'N/A',
-      details: `Based on ${recentExpenses.length} expenses in last 30 days`
-    };
-  }, [expensesQuery.data, treasury.totalValueUsd, isDevMode, mockExpenses, treasuryAssets]);
-
   return (
     <Page>
       <PageSection
@@ -316,49 +280,7 @@ const DashboardPage = () => {
             label="Total Value (ETH)"
             value={`${treasury.totalValueEth?.toLocaleString?.() ?? "0"} ETH`}
           />
-          <div style={{ position: 'relative' }}>
-            <StatCard
-              label="Monthly Burn Rate"
-              value={formatCurrency(burnRateMetrics.burnRate)}
-              caption={burnRateMetrics.details}
-            />
-            <button
-              onClick={() => setShowBurnRateInfo(!showBurnRateInfo)}
-              style={{
-                position: 'absolute',
-                top: '0.5rem',
-                right: '0.5rem',
-                background: 'var(--md-sys-color-primary)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '50%',
-                width: '20px',
-                height: '20px',
-                cursor: 'pointer',
-                fontSize: '12px',
-                fontWeight: 'bold'
-              }}
-            >
-              ?
-            </button>
-          </div>
         </PageGrid>
-        {showBurnRateInfo && (
-          <div style={{
-            marginTop: '1rem',
-            padding: '1rem',
-            background: 'var(--md-sys-color-primary-container)',
-            borderRadius: '8px',
-            border: '1px solid var(--md-sys-color-primary)'
-          }}>
-            <h4 style={{ marginTop: 0 }}>📊 How Burn Rate & Runway are Calculated:</h4>
-            <ul style={{ marginBottom: 0 }}>
-              <li><strong>Burn Rate:</strong> Total expenses in the last 30 days</li>
-              <li><strong>Runway:</strong> Total Treasury Value ÷ Monthly Burn Rate</li>
-              <li><strong>Example:</strong> $1M treasury with $50k monthly burn = 20 months runway</li>
-            </ul>
-          </div>
-        )}
       </PageSection>
 
       {/* Historical Balance Chart */}
