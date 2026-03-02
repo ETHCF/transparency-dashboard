@@ -118,6 +118,9 @@ func (t *Tracker) processBalances(ctx context.Context, prices map[string]float64
 }
 
 func (t *Tracker) fetchTransfers(ctx context.Context, wallet types.Wallet, fromBlock uint64, toBlock uint64) ([]types.CreateTransfer, error) {
+	if len(wallet.Address) == 0 {
+		return nil, errors.New("wallet address is empty")
+	}
 	outgoing, err := t.alchemy.GetAssetTransfers(ctx, alchemy.GetTransfersOptions{
 		FromAddress: &wallet.Address,
 		FromBlock:   fromBlock,
