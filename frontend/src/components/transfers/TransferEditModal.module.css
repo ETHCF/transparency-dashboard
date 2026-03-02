@@ -315,8 +315,13 @@
   color: white;
 }
 
-.saveBtn:hover {
+.saveBtn:hover:not(:disabled) {
   background: #5269D3;
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(98, 126, 234, 0.2);
+}
+
+.saveBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

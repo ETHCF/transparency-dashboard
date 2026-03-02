@@ -1,6 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { EmptyState } from "@/components/common/EmptyState";
 import { ErrorState } from "@/components/common/ErrorState";
@@ -10,14 +11,21 @@ import { Page, PageSection } from "@/components/layout/Page";
 import { DataTable } from "@/components/table/DataTable";
 import type { ColumnDef } from "@/components/table/DataTable";
 import { createTransferColumns } from "@/components/transfers/columns";
+import { TransferEditModal } from "@/components/transfers/TransferEditModal";
+import { useCategoriesQuery } from "@/services/categories";
+import {
+  useExpenseByTxHashQuery,
+  useCreateExpenseMutation,
+  useUpdateExpenseMutation,
+} from "@/services/expenses";
 import { useTreasuryQuery } from "@/services/treasury";
 import { useTransfersQuery } from "@/services/transfers";
+import { useAuthStore } from "@/stores/auth";
+import type { ExpensePayload } from "@/types/api";
 import type { TransferRecord } from "@/types/domain";
 import { formatDateTime } from "@/utils/format";
+import { exportTransfers } from "@/utils/export";
 import { generateMockTransfers } from "@/utils/mockData";
-import { TransferEditModal } from "@/components/transfers/TransferEditModal";
-import { useAuthStore } from "@/stores/auth";
-import { exportTransfers, generatePDFReport } from "@/utils/export";
 
 const PAGE_SIZE = 25;
 
@@ -31,9 +39,26 @@ function TransfersPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const hasAdminAccess = useAuthStore((state) => Boolean(state.token));
+  const queryClient = useQueryClient();
 
   const treasuryQuery = useTreasuryQuery();
   const transfersQuery = useTransfersQuery(pagination);
+  const categoriesQuery = useCategoriesQuery();
+
+  // Expense lookup for the selected transfer
+  const expenseQuery = useExpenseByTxHashQuery(
+    isModalOpen ? selectedTransfer?.txHash : undefined,
+  );
+
+  const createExpenseMutation = useCreateExpenseMutation();
+  const updateExpenseMutation = useUpdateExpenseMutation(
+    expenseQuery.data?.id ?? "",
+  );
+
+  const categoryNames = useMemo(
+    () => (categoriesQuery.data ?? []).map((c) => c.name),
+    [categoriesQuery.data],
+  );
 
   const treasuryAssets = treasuryQuery.data?.assets ?? [];
   const treasuryWalletAddresses = useMemo(() => {
@@ -170,9 +195,34 @@ function TransfersPage() {
     }
   };
 
-  const handleSaveMetadata = (metadata: any) => {
-    // TODO: Implement API call to save metadata
-    // In a real implementation, this would call an API endpoint to save the metadata
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedTransfer(null);
+  };
+
+  const isSaving = createExpenseMutation.isPending || updateExpenseMutation.isPending;
+
+  const handleSaveMetadata = (payload: ExpensePayload) => {
+    if (!selectedTransfer) return;
+
+    const onSuccess = () => {
+      void queryClient.invalidateQueries({
+        queryKey: ["expense", "by-tx-hash", selectedTransfer.txHash],
+      });
+      void queryClient.invalidateQueries({ queryKey: ["expenses"] });
+      closeModal();
+    };
+
+    if (expenseQuery.data) {
+      // Update existing expense
+      updateExpenseMutation.mutate(payload, { onSuccess });
+    } else {
+      // Create new expense linked to this transfer
+      createExpenseMutation.mutate(
+        { ...payload, txHash: selectedTransfer.txHash },
+        { onSuccess },
+      );
+    }
   };
 
   const handleExportCSV = () => {
@@ -265,12 +315,13 @@ function TransfersPage() {
       {selectedTransfer && (
         <TransferEditModal
           transfer={selectedTransfer}
+          expense={expenseQuery.data}
+          isLoadingExpense={expenseQuery.isLoading}
+          isSaving={isSaving}
           isOpen={isModalOpen}
-          onClose={() => {
-            setIsModalOpen(false);
-            setSelectedTransfer(null);
-          }}
+          onClose={closeModal}
           onSave={handleSaveMetadata}
+          categories={categoryNames}
         />
       )}
     </Page>

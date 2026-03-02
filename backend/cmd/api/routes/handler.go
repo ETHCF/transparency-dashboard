@@ -79,6 +79,7 @@ func (rh *RouteHandler) ApplyRoutes(r *gin.Engine) {
 	api.GET("/transfer-parties", rh.GetTransferParties)
 	api.GET("/transfer-parties/:address", rh.GetTransferPartyByAddress)
 	api.GET("/expenses", rh.GetExpenses)
+	api.GET("/expenses/by-tx-hash/:txHash", rh.GetExpenseByTxHash)
 	api.GET("/expenses/:id", rh.GetExpenseByID)
 	api.GET("/expenses/:id/receipts", rh.GetExpenseReceipts)
 	api.GET("/receipts/:id", rh.GetReceiptByID)

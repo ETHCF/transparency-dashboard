@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"strings"
 	"time"
@@ -22,6 +23,7 @@ type ExpenseDB interface {
 	GetExpenses(ctx context.Context, limit, offset int) ([]types.Expense, error)
 	CreateExpense(ctx context.Context, expense types.Expense) error
 	GetExpenseByID(ctx context.Context, id uuid.UUID) (*types.Expense, error)
+	GetExpenseByTxHash(ctx context.Context, txHash string) (*types.Expense, error)
 	UpdateExpense(ctx context.Context, id uuid.UUID, updates types.UpdateExpenseRequest) error
 	DeleteExpense(ctx context.Context, id uuid.UUID) error
 	ExpenseExists(ctx context.Context, id uuid.UUID) (bool, error)
@@ -42,6 +44,7 @@ type expense struct {
 	getExpenses            *sqlx.Stmt
 	createExpense          *sqlx.NamedStmt
 	getExpenseByID         *sqlx.Stmt
+	getExpenseByTxHash     *sqlx.Stmt
 	deleteExpense          *sqlx.Stmt
 	expenseExists          *sqlx.Stmt
 	createReceipt          *sqlx.NamedStmt
@@ -80,6 +83,12 @@ func NewExpenseDB(ctx context.Context, conf *config.Config, dbConn *sqlx.DB) (Ex
 		SELECT %s FROM expenses WHERE id = $1`, strings.Join(expenseCols, ", ")))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to prepare GetExpenseByID statement")
+	}
+
+	getExpenseByTxHash, err := dbConn.PreparexContext(ctx, fmt.Sprintf(`
+		SELECT %s FROM expenses WHERE tx_hash = $1`, strings.Join(expenseCols, ", ")))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to prepare GetExpenseByTxHash statement")
 	}
 
 	deleteExpense, err := dbConn.PreparexContext(ctx, `DELETE FROM expenses WHERE id = $1`)
@@ -138,6 +147,7 @@ func NewExpenseDB(ctx context.Context, conf *config.Config, dbConn *sqlx.DB) (Ex
 		getExpenses:                        getExpenses,
 		createExpense:                      createExpense,
 		getExpenseByID:                     getExpenseByID,
+		getExpenseByTxHash:                 getExpenseByTxHash,
 		deleteExpense:                      deleteExpense,
 		expenseExists:                      expenseExists,
 		createReceipt:                      createReceipt,
@@ -177,6 +187,18 @@ func (e *expense) GetExpenseByID(ctx context.Context, id uuid.UUID) (*types.Expe
 		return nil, errors.Wrap(err, "failed to get expense by ID")
 	}
 	return &expense, nil
+}
+
+func (e *expense) GetExpenseByTxHash(ctx context.Context, txHash string) (*types.Expense, error) {
+	var exp types.Expense
+	err := e.getExpenseByTxHash.GetContext(ctx, &exp, txHash)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, errors.Wrap(err, "failed to get expense by tx hash")
+	}
+	return &exp, nil
 }
 
 func (e *expense) UpdateExpense(ctx context.Context, id uuid.UUID, updates types.UpdateExpenseRequest) error {

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { apiRequest } from "@/services/api-client";
+import { ApiError, apiRequest } from "@/services/api-client";
 import { mapExpense } from "@/services/mappers";
 import { queryKeys } from "@/services/query-keys";
 import type { ExpenseDto, ExpensePayload } from "@/types/api";
@@ -60,6 +60,22 @@ export const fetchExpenseBreakdown = async (
 export const fetchExpenseById = async (id: string): Promise<Expense> => {
   const response = await apiRequest<ExpenseDto>(`expenses/${id}`);
   return mapExpense(response);
+};
+
+export const fetchExpenseByTxHash = async (
+  txHash: string,
+): Promise<Expense | null> => {
+  try {
+    const response = await apiRequest<ExpenseDto>(
+      `expenses/by-tx-hash/${txHash}`,
+    );
+    return mapExpense(response);
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) {
+      return null;
+    }
+    throw error;
+  }
 };
 
 export const createExpense = async (
@@ -124,6 +140,13 @@ export const useExpenseQuery = (id: string) =>
     queryKey: queryKeys.expenseById(id),
     queryFn: () => fetchExpenseById(id),
     enabled: Boolean(id),
+  });
+
+export const useExpenseByTxHashQuery = (txHash: string | undefined) =>
+  useQuery({
+    queryKey: ["expense", "by-tx-hash", txHash],
+    queryFn: () => fetchExpenseByTxHash(txHash!),
+    enabled: Boolean(txHash),
   });
 
 export const useCreateExpenseMutation = () => {

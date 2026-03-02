@@ -97,6 +97,31 @@ func (rh *RouteHandler) GetExpenseByID(c *gin.Context) {
 	c.JSON(http.StatusOK, expense)
 }
 
+// GET /api/v1/expenses/by-tx-hash/:txHash - Get expense by transaction hash
+func (rh *RouteHandler) GetExpenseByTxHash(c *gin.Context) {
+	txHash := c.Param("txHash")
+
+	sanitized, err := ethutils.SanitizeEthHash(txHash)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "Invalid transaction hash format"})
+		return
+	}
+
+	expense, err := rh.expenseDB.GetExpenseByTxHash(c, sanitized)
+	if err != nil {
+		rh.log.WithError(err).Error("failed to get expense by tx hash")
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve expense"})
+		return
+	}
+
+	if expense == nil {
+		c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": "No expense found for this transaction"})
+		return
+	}
+
+	c.JSON(http.StatusOK, expense)
+}
+
 // POST /api/v1/expenses - Create a new expense
 func (rh *RouteHandler) CreateExpense(c *gin.Context) {
 	var req types.CreateExpenseRequest
