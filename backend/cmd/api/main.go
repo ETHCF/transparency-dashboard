@@ -56,8 +56,8 @@ func main() {
 		TokenIssuer:    jwtManager,
 	})
 
-	r := gin.Default()
-	r.Use(server.CORSAllowAll)
+	r := gin.New()
+	r.Use(gin.Recovery(), server.CORSAllowAll)
 
 	handle.ApplyRoutes(r)
 	logger.Info("starting server")
